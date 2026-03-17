@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
@@ -44,7 +43,6 @@ func (p *Parser) expect(t token.TokenType) token.Token {
 		p.pos++
 		return tok
 	}
-	fmt.Printf("ПОМИЛКА: Очікував %v, але отримав %v (Literal: %s) на позиції %d\n", t, p.current().Type, p.current().Literal, p.pos)
 	SyntaxError(p.current().Line)
 	return token.Token{}
 }
@@ -249,6 +247,22 @@ func (p *Parser) parseStatement() ast.Stmt {
 		exp := p.parseExpression(LOWEST)
 		p.consumeNewlineOrEOF()
 		return ast.ReturnStmt{Expr: exp}
+	case token.POKY:
+		p.pos++
+		condition := p.parseExpression(LOWEST)
+		p.expect(token.COLON)
+		p.consumeNewlineOrEOF()
+
+		var body []ast.Stmt
+
+		for p.current().Type != token.KINETS && p.current().Type != token.EOF {
+			stmt := p.parseBlock()
+			if stmt != nil {
+				body = stmt
+			}
+		}
+		p.expect(token.KINETS)
+		return ast.PokyStmt{Condition: condition, Body: body}
 	case token.IDENT:
 		saved := p.pos
 		p.pos++
