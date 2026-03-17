@@ -68,11 +68,11 @@ func TestRunMathOperations(t *testing.T) {
 
 func TestRunLogicBranches(t *testing.T) {
 	const codeTemplate = "nekhay a = %d\n" +
-		"yaksho a > 3\n" +
+		"yaksho a > 3:\n" +
 		"    drukuvaty \"first\"\n" +
-		"inackshe yaksho a < 3\n" +
+		"inackshe yaksho a < 3:\n" +
 		"    drukuvaty \"second\"\n" +
-		"inackshe\n" +
+		"inackshe:\n" +
 		"    drukuvaty \"third\"\n"
 
 	tests := []struct {

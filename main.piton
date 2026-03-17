@@ -1,0 +1,79 @@
+nekhay values = [1, 4, 10, 25, 0.5, 100]
+nekhay terms = ["korin", "stupin", "loh10", "abs", "dovzhyna"]
+nekhay currentValue = 0
+
+functia main():
+    drukuvaty "\n--- Piton Showcase ---"
+    nekhay i = 0
+    poky i < dovzhyna(values):
+        currentValue = values[i]
+        drukuvaty "\nЧисло:"
+        drukuvaty currentValue
+        drukuvaty "    Корінь:"
+        drukuvaty korin currentValue
+        drukuvaty "    Степінь 1.5:"
+        drukuvaty currentValue stupin 1.5
+        yaksho currentValue > 0:
+            drukuvaty "    Log10:"
+            drukuvaty loh10 currentValue
+        inackshe:
+            drukuvaty "    Log10: неприпустимо"
+        drukuvaty "    Модуль від (число - 5):"
+        drukuvaty abs (currentValue - 5)
+        yaksho currentValue > 0:
+            nekhay wave = korin currentValue / (currentValue + 1)
+            drukuvaty "    Kosynus:"
+            drukuvaty kosynus currentValue
+            drukuvaty "    Arksyn (wave):"
+            drukuvaty arksyn wave
+        inackshe:
+            drukuvaty "    Kosynus/Arksyn: вимагають додаткових даних"
+        drukuvaty "    Класифікація:"
+        drukuvaty klasify()
+        i = i + 1
+    kinets
+
+    drukuvaty "\nСписок операцій:"
+    nekhay cursor = 0
+    poky cursor < dovzhyna(terms):
+        drukuvaty terms[cursor]
+        cursor = cursor + 1
+    kinets
+
+    nekhay first = values[0]
+    nekhay last = values[dovzhyna(values) - 1]
+    drukuvaty "\nКраї діапазону:"
+    drukuvaty first
+    drukuvaty last
+
+    drukuvaty "\nСереднє арифметичне:"
+    drukuvaty average()
+
+    drukuvaty "\nМікро-аналіз розмітки термінів:"
+    drukuvaty terms[dovzhyna(terms) - 2]
+
+    drukuvaty "\nГрошовий сигнал:"
+    drukuvaty memo()
+
+main()
+
+functia klasify():
+    yaksho currentValue > 50:
+        vernuty "Надвелике"
+    inackshe yaksho currentValue > 10:
+        vernuty "Велике"
+    inackshe:
+        vernuty "Компактне"
+
+functia average():
+    nekhay sum = 0
+    nekhay i = 0
+    poky i < dovzhyna(values):
+        sum = sum + values[i]
+        i = i + 1
+    kinets
+    vernuty sum / dovzhyna(values)
+
+functia memo():
+    nekhay summaryIndex = dovzhyna(terms) - 2
+    vernuty korin (summaryIndex stupin 2) + loh10 (dovzhyna(values)) + abs (0 - currentValue)

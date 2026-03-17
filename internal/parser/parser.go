@@ -162,6 +162,13 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 			continue
 		}
 
+		if opToken.Type == token.MULTIPTY || opToken.Type == token.DIVIDE {
+			p.pos++
+			rightExp := p.parseExpression(precedences[opToken.Type])
+			leftExp = ast.InfixExpr{Left: leftExp, Operator: opToken.Literal, Right: rightExp}
+			continue
+		}
+
 		break
 	}
 	return leftExp
@@ -221,6 +228,7 @@ func (p *Parser) parseStatement() ast.Stmt {
 	case token.YAKSHO:
 		p.pos++
 		cond := p.parseExpression(LOWEST)
+		p.expect(token.COLON)
 		p.consumeNewlineOrEOF()
 		body := p.parseBlock()
 
@@ -232,10 +240,12 @@ func (p *Parser) parseStatement() ast.Stmt {
 			if p.current().Type == token.YAKSHO {
 				p.pos++
 				elifCond := p.parseExpression(LOWEST)
+				p.expect(token.COLON)
 				p.consumeNewlineOrEOF()
 				elifBody := p.parseBlock()
 				elifs = append(elifs, ast.ElseIf{Condition: elifCond, Body: elifBody})
 			} else {
+				p.expect(token.COLON)
 				p.consumeNewlineOrEOF()
 				elseBody = p.parseBlock()
 				break
