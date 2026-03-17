@@ -102,3 +102,10 @@ func (Identifier) expr() {}
 type ListLiteral struct{ Elements []Expr }
 
 func (ListLiteral) expr() {}
+
+type IndexExpr struct {
+	Left  Expr
+	Index Expr
+}
+
+func (IndexExpr) expr() {}

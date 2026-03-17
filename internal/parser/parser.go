@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -43,6 +44,7 @@ func (p *Parser) expect(t token.TokenType) token.Token {
 		p.pos++
 		return tok
 	}
+	fmt.Printf("ПОМИЛКА: Очікував %v, але отримав %v (Literal: %s) на позиції %d\n", t, p.current().Type, p.current().Literal, p.pos)
 	SyntaxError(p.current().Line)
 	return token.Token{}
 }
@@ -52,15 +54,23 @@ const (
 	LOWEST
 	LESSGREATER
 	SUM
+	PRODUCT
 	STUPIN_PREC
 	PREFIX_PREC
+	CALL
+	INDEX_PREC
 )
 
 var precedences = map[token.TokenType]int{
-	token.GT:     LESSGREATER,
-	token.LT:     LESSGREATER,
-	token.PLUS:   SUM,
-	token.STUPIN: STUPIN_PREC,
+	token.GT:       LESSGREATER,
+	token.LT:       LESSGREATER,
+	token.PLUS:     SUM,
+	token.MINUS:    SUM,
+	token.MULTIPTY: PRODUCT,
+	token.DIVIDE:   PRODUCT,
+	token.STUPIN:   STUPIN_PREC,
+	token.LPAREN:   CALL,
+	token.LBRACKET: INDEX_PREC,
 }
 
 func (p *Parser) peekPrecedence() int {
@@ -92,19 +102,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 	switch tok.Type {
 	case token.IDENT:
 		p.pos++
-		if p.current().Type == token.LPAREN {
-			p.pos++
-			var args []ast.Expr
-			if p.current().Type != token.RPAREN {
-				args = append(args, p.parseExpression(LOWEST))
-				for p.consume(token.ILLEGAL) {
-				}
-			}
-			p.expect(token.RPAREN)
-			leftExp = ast.CallExpr{Name: tok.Literal, Args: args}
-		} else {
-			leftExp = ast.Identifier{Value: tok.Literal}
-		}
+		leftExp = ast.Identifier{Value: tok.Literal}
 	case token.NUMBER:
 		p.pos++
 		val, _ := strconv.ParseFloat(tok.Literal, 64)
@@ -128,13 +126,45 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 
 	for p.current().Type != token.NEWLINE && p.current().Type != token.EOF && precedence < p.peekPrecedence() {
 		opToken := p.current()
-		if opToken.Type == token.GT || opToken.Type == token.LT || opToken.Type == token.PLUS || opToken.Type == token.STUPIN {
+
+		if opToken.Type == token.LPAREN {
+			p.pos++
+			var args []ast.Expr
+			if p.current().Type != token.RPAREN {
+				args = append(args, p.parseExpression(LOWEST))
+				for p.current().Type == token.COMMA {
+					p.pos++
+					args = append(args, p.parseExpression(LOWEST))
+				}
+			}
+			p.expect(token.RPAREN)
+
+			if ident, ok := leftExp.(ast.Identifier); ok {
+				leftExp = ast.CallExpr{Name: ident.Value, Args: args}
+			} else {
+				SyntaxError(opToken.Line)
+			}
+			continue
+		}
+
+		if opToken.Type == token.LBRACKET {
+			p.pos++
+			index := p.parseExpression(LOWEST)
+			p.expect(token.RBRACKET)
+			leftExp = ast.IndexExpr{Left: leftExp, Index: index}
+			continue
+		}
+
+		if opToken.Type == token.GT || opToken.Type == token.LT ||
+			opToken.Type == token.PLUS || opToken.Type == token.MINUS ||
+			opToken.Type == token.STUPIN {
 			p.pos++
 			rightExp := p.parseExpression(precedences[opToken.Type])
 			leftExp = ast.InfixExpr{Left: leftExp, Operator: opToken.Literal, Right: rightExp}
-		} else {
-			break
+			continue
 		}
+
+		break
 	}
 	return leftExp
 }

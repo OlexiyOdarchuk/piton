@@ -181,6 +181,11 @@ func TestList(t *testing.T) {
 			"nekhay a = [14,5,1,\"Hello\",2]\ndrukuvaty a",
 			"[14, 5, 1, \"Hello\", 2]\n",
 		},
+		{
+			"All List",
+			"nekhay s = [10, 20, 30, 40]\ndrukuvaty dovzhyna(s)\ndrukuvaty s[dovzhyna(s) - 1]",
+			"4\n40\n",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -18,6 +18,9 @@ const (
 
 	ASSIGN
 	PLUS
+	MINUS
+	MULTIPTY
+	DIVIDE
 	GT
 	LT
 	LPAREN
@@ -44,7 +47,7 @@ func (t TokenType) String() string {
 	names := [...]string{
 		"ILLEGAL", "EOF", "NEWLINE", "INDENT", "DEDENT",
 		"IDENT", "NUMBER", "STRING", "[", "]", ",",
-		"=", "+", ">", "<", "(", ")", ":",
+		"=", "+", "-", "*", "/", ">", "<", "(", ")", ":",
 		"functia", "drukuvaty", "nekhay", "vvid", "yaksho", "inackshe",
 		"korin", "loh10", "abs", "arksyn", "kosynus", "stupin", "vernuty",
 	}

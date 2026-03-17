@@ -72,6 +72,15 @@ func TokenizeLine(line string) []token.Token {
 		case ch == '+':
 			tokens = append(tokens, token.Token{Type: token.PLUS, Literal: "+"})
 			i++
+		case ch == '-':
+			tokens = append(tokens, token.Token{Type: token.MINUS, Literal: "-"})
+			i++
+		case ch == '*':
+			tokens = append(tokens, token.Token{Type: token.MULTIPTY, Literal: "*"})
+			i++
+		case ch == '/':
+			tokens = append(tokens, token.Token{Type: token.DIVIDE, Literal: "/"})
+			i++
 		case ch == '>':
 			tokens = append(tokens, token.Token{Type: token.GT, Literal: ">"})
 			i++
