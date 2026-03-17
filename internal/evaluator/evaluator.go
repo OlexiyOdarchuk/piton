@@ -271,6 +271,19 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			return nil
 		}
 		return list[i]
+	case ast.PokyStmt:
+		for {
+			cond := ev.Eval(n.Condition, env)
+
+			if boolean, ok := cond.(bool); ok && !boolean {
+				break
+			}
+
+			for _, stmt := range n.Body {
+				ev.Eval(stmt, env)
+			}
+		}
+		return nil
 	}
 	return nil
 }

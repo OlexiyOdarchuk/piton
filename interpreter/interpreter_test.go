@@ -195,3 +195,24 @@ func TestList(t *testing.T) {
 		})
 	}
 }
+
+func TestPoky(t *testing.T) {
+	tests := []struct {
+		name string
+		expr string
+		want string
+	}{
+		{
+			"Print full script with cycle",
+			"nekhay i = 0\nnekhay s = [1, 2, 3]\npoky i < dovzhyna(s):\n	drukuvaty s[i]\n	i = i + 1\nkinets",
+			"1\n2\n3\n",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := runWithBuffer(t, tt.expr); got != tt.want {
+				t.Fatalf("got %q want %q", got, tt.want)
+			}
+		})
+	}
+}

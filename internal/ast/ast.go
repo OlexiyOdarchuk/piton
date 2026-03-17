@@ -65,6 +65,13 @@ type ExprStmt struct{ Expr Expr }
 
 func (ExprStmt) stmt() {}
 
+type PokyStmt struct {
+	Condition Expr
+	Body      []Stmt
+}
+
+func (PokyStmt) stmt() {}
+
 type CallExpr struct {
 	Name string
 	Args []Expr
