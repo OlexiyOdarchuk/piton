@@ -49,6 +49,30 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		return nil
 	case ast.PrintStmt:
 		val := ev.Eval(n.Expr, env)
+		if list, ok := val.([]interface{}); ok {
+			ev.Out.WriteString("[")
+			for i, value := range list {
+				switch v := value.(type) {
+				case float64:
+					ev.Out.WriteString(strconv.FormatFloat(v, 'g', -1, 64))
+				case string:
+					ev.Out.WriteString("\"" + v + "\"")
+				case bool:
+					if v {
+						ev.Out.WriteString("true")
+					} else {
+						ev.Out.WriteString("false")
+					}
+				default:
+					ev.Out.WriteString(value.(string))
+				}
+				if len(list)-1 > i {
+					ev.Out.WriteString(", ")
+				}
+			}
+			ev.Out.WriteString("]\n")
+			return nil
+		}
 		if str, ok := val.(string); ok {
 			ev.Out.WriteString(str + "\n")
 		} else if num, ok := val.(float64); ok {
@@ -61,6 +85,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			}
 		}
 		return nil
+
 	case ast.VarDecStmt:
 		val := ev.Eval(n.Expr, env)
 		env.Set(n.Name, val)
@@ -83,6 +108,21 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 	case ast.ExprStmt:
 		return ev.Eval(n.Expr, env)
 	case ast.CallExpr:
+		if n.Name == "dovzhyna" {
+			if len(n.Args) != 1 {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() ochikuye rivno 1 arhument!)\n")
+				return nil
+			}
+
+			val := ev.Eval(n.Args[0], env)
+
+			if list, ok := val.([]interface{}); ok {
+				return float64(len(list))
+			}
+
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() pratsyuye tilky zi spyskamy!)\n")
+			return nil
+		}
 		fnDefIf, ok := ev.Globals.Get(n.Name)
 		if !ok {
 			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Unknown function: " + n.Name + ")\n")
@@ -154,6 +194,16 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		switch n.Operator {
 		case "+":
 			return left + right
+		case "-":
+			return left - right
+		case "*":
+			return left * right
+		case "/":
+			if right == 0 {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Zero divide)\n")
+				return nil
+			}
+			return left / right
 		case ">":
 			return left > right
 		case "<":
@@ -193,6 +243,34 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			os.Exit(1)
 		}
 		return v
+	case ast.ListLiteral:
+		elements := make([]interface{}, len(n.Elements))
+		for i, expr := range n.Elements {
+			elements[i] = ev.Eval(expr, env)
+		}
+		return elements
+	case ast.IndexExpr:
+		leftVal := ev.Eval(n.Left, env)
+		idxVal := ev.Eval(n.Index, env)
+
+		list, okList := leftVal.([]interface{})
+		index, okIdx := idxVal.(float64)
+
+		if !okList {
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Mozhna tykaty palcem tilky v spysok!)\n")
+			return nil
+		}
+		if !okIdx {
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index maye buty chyslom!)\n")
+			return nil
+		}
+
+		i := int(index)
+		if i < 0 || i >= len(list) {
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Takogo elementa nemaye, ty khochesh zanadto bahato!)\n")
+			return nil
+		}
+		return list[i]
 	}
 	return nil
 }

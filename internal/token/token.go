@@ -12,9 +12,15 @@ const (
 	IDENT
 	NUMBER
 	STRING
+	LBRACKET
+	RBRACKET
+	COMMA
 
 	ASSIGN
 	PLUS
+	MINUS
+	MULTIPTY
+	DIVIDE
 	GT
 	LT
 	LPAREN
@@ -34,13 +40,14 @@ const (
 	KOSYNUS
 	STUPIN
 	VERNUTY
+	POKY
 )
 
 func (t TokenType) String() string {
 	names := [...]string{
 		"ILLEGAL", "EOF", "NEWLINE", "INDENT", "DEDENT",
-		"IDENT", "NUMBER", "STRING",
-		"=", "+", ">", "<", "(", ")", ":",
+		"IDENT", "NUMBER", "STRING", "[", "]", ",",
+		"=", "+", "-", "*", "/", ">", "<", "(", ")", ":",
 		"functia", "drukuvaty", "nekhay", "vvid", "yaksho", "inackshe",
 		"korin", "loh10", "abs", "arksyn", "kosynus", "stupin", "vernuty",
 	}
@@ -84,6 +91,8 @@ func LookupIdent(ident string) TokenType {
 		return STUPIN
 	case "vernuty":
 		return VERNUTY
+	case "poky":
+		return POKY
 	default:
 		return IDENT
 	}

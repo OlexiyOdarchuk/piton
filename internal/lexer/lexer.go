@@ -72,6 +72,15 @@ func TokenizeLine(line string) []token.Token {
 		case ch == '+':
 			tokens = append(tokens, token.Token{Type: token.PLUS, Literal: "+"})
 			i++
+		case ch == '-':
+			tokens = append(tokens, token.Token{Type: token.MINUS, Literal: "-"})
+			i++
+		case ch == '*':
+			tokens = append(tokens, token.Token{Type: token.MULTIPTY, Literal: "*"})
+			i++
+		case ch == '/':
+			tokens = append(tokens, token.Token{Type: token.DIVIDE, Literal: "/"})
+			i++
 		case ch == '>':
 			tokens = append(tokens, token.Token{Type: token.GT, Literal: ">"})
 			i++
@@ -105,6 +114,15 @@ func TokenizeLine(line string) []token.Token {
 				i++
 			}
 			tokens = append(tokens, token.Token{Type: token.STRING, Literal: string(valBytes)})
+		case ch == '[':
+			tokens = append(tokens, token.Token{Type: token.LBRACKET, Literal: "["})
+			i++
+		case ch == ']':
+			tokens = append(tokens, token.Token{Type: token.RBRACKET, Literal: "]"})
+			i++
+		case ch == ',':
+			tokens = append(tokens, token.Token{Type: token.COMMA, Literal: ","})
+			i++
 		case unicode.IsDigit(ch):
 			start := i
 			for i < len(line) && (unicode.IsDigit(rune(line[i])) || line[i] == '.') {

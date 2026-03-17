@@ -90,7 +90,7 @@ jobs:
           prerelease: false
           make_latest: true
           body: |
-            ## Реліз мови програмування Piton
+            ## Реліз ${{ github.ref_name }} мови програмування Piton
 
             🎉 **Piton** доступний для всіх основних платформ!
             
