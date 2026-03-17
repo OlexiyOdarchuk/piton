@@ -49,6 +49,30 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		return nil
 	case ast.PrintStmt:
 		val := ev.Eval(n.Expr, env)
+		if list, ok := val.([]interface{}); ok {
+			ev.Out.WriteString("[")
+			for i, value := range list {
+				switch v := value.(type) {
+				case float64:
+					ev.Out.WriteString(strconv.FormatFloat(v, 'g', -1, 64))
+				case string:
+					ev.Out.WriteString("\"" + v + "\"")
+				case bool:
+					if v {
+						ev.Out.WriteString("true")
+					} else {
+						ev.Out.WriteString("false")
+					}
+				default:
+					ev.Out.WriteString(value.(string))
+				}
+				if len(list)-1 > i {
+					ev.Out.WriteString(", ")
+				}
+			}
+			ev.Out.WriteString("]\n")
+			return nil
+		}
 		if str, ok := val.(string); ok {
 			ev.Out.WriteString(str + "\n")
 		} else if num, ok := val.(float64); ok {
@@ -61,6 +85,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			}
 		}
 		return nil
+
 	case ast.VarDecStmt:
 		val := ev.Eval(n.Expr, env)
 		env.Set(n.Name, val)
@@ -193,6 +218,12 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			os.Exit(1)
 		}
 		return v
+	case ast.ListLiteral:
+		elements := make([]interface{}, len(n.Elements))
+		for i, expr := range n.Elements {
+			elements[i] = ev.Eval(expr, env)
+		}
+		return elements
 	}
 	return nil
 }

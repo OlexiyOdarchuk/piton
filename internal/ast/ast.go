@@ -98,3 +98,7 @@ func (StringLiteral) expr() {}
 type Identifier struct{ Value string }
 
 func (Identifier) expr() {}
+
+type ListLiteral struct{ Elements []Expr }
+
+func (ListLiteral) expr() {}

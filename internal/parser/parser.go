@@ -70,6 +70,21 @@ func (p *Parser) peekPrecedence() int {
 	return LOWEST
 }
 
+func (p *Parser) parseListLiteral() ast.Expr {
+	p.pos++
+	var elements []ast.Expr
+	if p.current().Type != token.RBRACKET {
+		elements = append(elements, p.parseExpression(LOWEST))
+
+		for p.current().Type == token.COMMA {
+			p.pos++
+			elements = append(elements, p.parseExpression(LOWEST))
+		}
+	}
+	p.expect(token.RBRACKET)
+	return ast.ListLiteral{Elements: elements}
+}
+
 func (p *Parser) parseExpression(precedence int) ast.Expr {
 	var leftExp ast.Expr
 	tok := p.current()
@@ -97,6 +112,8 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 	case token.STRING:
 		p.pos++
 		leftExp = ast.StringLiteral{Value: tok.Literal}
+	case token.LBRACKET:
+		leftExp = p.parseListLiteral()
 	case token.LPAREN:
 		p.pos++
 		leftExp = p.parseExpression(LOWEST)
