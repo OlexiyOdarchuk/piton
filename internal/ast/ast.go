@@ -74,8 +74,9 @@ type PokyStmt struct {
 func (PokyStmt) stmt() {}
 
 type CallExpr struct {
-	Name string
-	Args []Expr
+	Receiver Expr
+	Name     string
+	Args     []Expr
 }
 
 func (CallExpr) expr() {}
@@ -125,3 +126,14 @@ type SpysokExpr struct {
 }
 
 func (SpysokExpr) expr() {}
+
+type ImportStmt struct{ Filename Expr }
+
+func (ImportStmt) stmt() {}
+
+type SelectorExpr struct {
+	Left  Expr
+	Right string
+}
+
+func (SelectorExpr) expr() {}

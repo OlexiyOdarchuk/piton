@@ -26,6 +26,7 @@ const (
 	LPAREN
 	RPAREN
 	COLON
+	DOT
 
 	FUNCTIA
 	DRUKUVATY
@@ -41,15 +42,16 @@ const (
 	STUPIN
 	VERNUTY
 	POKY
+	VYKORYSTATY
 )
 
 func (t TokenType) String() string {
 	names := [...]string{
 		"ILLEGAL", "EOF", "NEWLINE", "INDENT", "DEDENT",
 		"IDENT", "NUMBER", "STRING", "[", "]", ",",
-		"=", "+", "-", "*", "/", ">", "<", "(", ")", ":",
+		"=", "+", "-", "*", "/", ">", "<", "(", ")", ":", ".",
 		"functia", "drukuvaty", "nekhay", "vvid", "yaksho", "inackshe",
-		"korin", "loh10", "abs", "arksyn", "kosynus", "stupin", "vernuty", "poky",
+		"korin", "loh10", "abs", "arksyn", "kosynus", "stupin", "vernuty", "poky", "vykorystaty",
 	}
 	if t >= 0 && int(t) < len(names) {
 		return names[t]
@@ -93,6 +95,8 @@ func LookupIdent(ident string) TokenType {
 		return VERNUTY
 	case "poky":
 		return POKY
+	case "vykorystaty":
+		return VYKORYSTATY
 	default:
 		return IDENT
 	}

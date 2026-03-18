@@ -68,6 +68,7 @@ var precedences = map[token.TokenType]int{
 	token.DIVIDE:   PRODUCT,
 	token.STUPIN:   STUPIN_PREC,
 	token.LPAREN:   CALL,
+	token.DOT:      INDEX_PREC,
 	token.LBRACKET: INDEX_PREC,
 }
 
@@ -125,6 +126,13 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 	for p.current().Type != token.NEWLINE && p.current().Type != token.EOF && precedence < p.peekPrecedence() {
 		opToken := p.current()
 
+		if opToken.Type == token.DOT {
+			p.pos++
+			right := p.expect(token.IDENT).Literal
+			leftExp = ast.SelectorExpr{Left: leftExp, Right: right}
+			continue
+		}
+
 		if opToken.Type == token.LPAREN {
 			p.pos++
 			var args []ast.Expr
@@ -137,9 +145,12 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 			}
 			p.expect(token.RPAREN)
 
-			if ident, ok := leftExp.(ast.Identifier); ok {
-				leftExp = ast.CallExpr{Name: ident.Value, Args: args}
-			} else {
+			switch fn := leftExp.(type) {
+			case ast.Identifier:
+				leftExp = ast.CallExpr{Name: fn.Value, Args: args}
+			case ast.SelectorExpr:
+				leftExp = ast.CallExpr{Receiver: fn.Left, Name: fn.Right, Args: args}
+			default:
 				SyntaxError(opToken.Line)
 			}
 			continue
@@ -309,6 +320,19 @@ func (p *Parser) parseStatement() ast.Stmt {
 		exp := p.parseExpression(LOWEST)
 		p.consumeNewlineOrEOF()
 		return ast.ExprStmt{Expr: exp}
+	case token.VYKORYSTATY:
+		p.pos++
+		var filename string
+		switch p.current().Type {
+		case token.STRING:
+			filename = p.expect(token.STRING).Literal
+		case token.IDENT:
+			filename = p.expect(token.IDENT).Literal
+		default:
+			SyntaxError(p.current().Line)
+		}
+		p.consumeNewlineOrEOF()
+		return ast.ImportStmt{Filename: ast.StringLiteral{Value: filename}}
 	default:
 		SyntaxError(p.current().Line)
 		return nil
