@@ -1,0 +1,12 @@
+drukuvaty "--- Vypadkovo Demo ---"
+
+nekhay fruits = ["яблуко", "груша", "слива"]
+
+drukuvaty "Випадковий елемент зі списку:"
+drukuvaty vypadkovo(fruits)
+
+drukuvaty "Випадкове число меньше 5:"
+drukuvaty vypadkovo(5)
+
+drukuvaty "Випадкове число в діапазоні 10..14:"
+drukuvaty vypadkovo(10, 15)

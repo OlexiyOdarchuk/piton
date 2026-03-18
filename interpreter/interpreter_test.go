@@ -3,8 +3,10 @@ package interpreter
 import (
 	"bytes"
 	"fmt"
+	"math/rand"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -16,6 +18,16 @@ func runWithBuffer(t *testing.T, code string) string {
 		t.Fatalf("Run(%q) failed: %v", code, err)
 	}
 	return buf.String()
+}
+
+func parseFloatOutput(t *testing.T, got string) float64 {
+	t.Helper()
+	trimmed := strings.TrimSpace(got)
+	val, err := strconv.ParseFloat(trimmed, 64)
+	if err != nil {
+		t.Fatalf("cannot parse %q as float: %v", got, err)
+	}
+	return val
 }
 
 func TestRunMathOperations(t *testing.T) {
@@ -192,6 +204,63 @@ func TestHelperProcess(t *testing.T) {
 
 	Run(code)
 	os.Exit(0)
+}
+
+func TestVypadkovo(t *testing.T) {
+	tests := []struct {
+		name  string
+		code  string
+		check func(t *testing.T, got string)
+	}{
+		{
+			name: "range",
+			code: "drukuvaty vypadkovo(5, 10)",
+			check: func(t *testing.T, got string) {
+				val := parseFloatOutput(t, got)
+				if val < 5 || val >= 10 {
+					t.Fatalf("got %v; want value in [5, 10)", val)
+				}
+			},
+		},
+		{
+			name: "single arg",
+			code: "drukuvaty vypadkovo(5)",
+			check: func(t *testing.T, got string) {
+				val := parseFloatOutput(t, got)
+				if val < 0 || val >= 5 {
+					t.Fatalf("got %v; want value in [0, 5)", val)
+				}
+			},
+		},
+		{
+			name: "list argument",
+			code: "nekhay options = [10, 20, 30]\ndrukuvaty vypadkovo(options)",
+			check: func(t *testing.T, got string) {
+				val := parseFloatOutput(t, got)
+				valid := map[float64]bool{10: true, 20: true, 30: true}
+				if !valid[val] {
+					t.Fatalf("got %v; want one of %v", val, valid)
+				}
+			},
+		},
+		{
+			name: "invalid bounds",
+			code: "drukuvaty vypadkovo(6, 2)",
+			check: func(t *testing.T, got string) {
+				want := "Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vypadkovo() minimum ne mozhe buty > za maximum!)\n"
+				if got != want {
+					t.Fatalf("got %q want %q", got, want)
+				}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rand.Seed(42)
+			tt.check(t, runWithBuffer(t, tt.code))
+		})
+	}
 }
 
 func TestSpysok(t *testing.T) {
