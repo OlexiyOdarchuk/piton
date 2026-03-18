@@ -203,11 +203,19 @@ func (p *Parser) parseStatement() ast.Stmt {
 		p.pos++
 		name := p.expect(token.IDENT).Literal
 		p.expect(token.LPAREN)
+		var params []string
+		if p.current().Type != token.RPAREN {
+			params = append(params, p.expect(token.IDENT).Literal)
+			for p.current().Type == token.COMMA {
+				p.pos++
+				params = append(params, p.expect(token.IDENT).Literal)
+			}
+		}
 		p.expect(token.RPAREN)
 		p.expect(token.COLON)
 		p.consumeNewlineOrEOF()
 		body := p.parseBlock()
-		return ast.FuncDefStmt{Name: name, Body: body}
+		return ast.FuncDefStmt{Name: name, Params: params, Body: body}
 	case token.DRUKUVATY:
 		p.pos++
 		exp := p.parseExpression(LOWEST)

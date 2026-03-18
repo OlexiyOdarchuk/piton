@@ -130,7 +130,15 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			os.Exit(1)
 		}
 		fnDef := fnDefIf.(ast.FuncDefStmt)
+		if len(n.Args) != len(fnDef.Params) {
+			ev.Out.WriteString("Ryadok [-]: A tak yak ty pyshesh, tak buty ne maye! (funkciya " + fnDef.Name + " ochikuye " + strconv.Itoa(len(fnDef.Params)) + " argumentiv, a ty dav " + strconv.Itoa(len(n.Args)) + ")\n")
+			return nil
+		}
 		fnEnv := NewEnv(ev.Globals)
+		for i, param := range fnDef.Params {
+			val := ev.Eval(n.Args[i], env)
+			fnEnv.Set(param, val)
+		}
 		for _, stmt := range fnDef.Body {
 			res := ev.Eval(stmt, fnEnv)
 			if ret, isRet := res.(ReturnValue); isRet {
