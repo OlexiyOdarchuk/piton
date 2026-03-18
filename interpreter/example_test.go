@@ -1,6 +1,10 @@
 package interpreter
 
-import "log"
+import (
+	"log"
+
+	"github.com/OlexiyOdarchuk/piton/internal/evaluator"
+)
 
 func ExampleRun() {
 	code := `
@@ -96,6 +100,14 @@ functia main():
 	drukuvaty "\nСписок без елементу з індексом 1:"
 	drukuvaty trimmed
 
+	nekhay fruits = ["яблуко", "груша", "слива"]
+	drukuvaty "\nВипадковий фрукт:"
+	drukuvaty vypadkovo(fruits)
+	drukuvaty "\nВипадкове число <5:"
+	drukuvaty vypadkovo(5)
+	drukuvaty "\nВипадкове число 10..14:"
+	drukuvaty vypadkovo(10, 15)
+
 main()
 
 functia klasify():
@@ -128,6 +140,7 @@ functia fib(n):
     inackshe:
         vernuty fib(n - 1) + fib(n - 2)
 `
+	evaluator.SeedRandom(42)
 	err := Run(code)
 	if err != nil {
 		log.Fatal(err)
@@ -303,4 +316,34 @@ functia fib(n):
 	//
 	// Список без елементу з індексом 1:
 	// [1, 3]
+	//
+	// Випадковий фрукт:
+	// слива
+	//
+	// Випадкове число <5:
+	// 2
+	//
+	// Випадкове число 10..14:
+	// 13
+}
+
+func ExampleRun_chasZaokruhlennya() {
+	code := `
+nekhay start = chas()
+zatrymka(0)
+nekhay later = chas()
+drukuvaty "chas ok"
+drukuvaty zaokruhlennya(123.4567, 2)
+drukuvaty "zatrymka ok"
+`
+
+	evaluator.SeedRandom(42)
+	if err := Run(code); err != nil {
+		log.Fatal(err)
+	}
+
+	// Output:
+	// chas ok
+	// 123.46
+	// zatrymka ok
 }

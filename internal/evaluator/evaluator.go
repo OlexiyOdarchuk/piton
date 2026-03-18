@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -19,9 +20,93 @@ type Evaluator struct {
 }
 
 func New(out io.Writer) *Evaluator {
+	env := NewEnv(nil)
+	env.Set("true", true)
+	env.Set("false", false)
 	return &Evaluator{
-		Globals: NewEnv(nil),
+		Globals: env,
 		Out:     bufio.NewWriter(out),
+	}
+}
+
+var (
+	rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
+)
+
+func SeedRandom(seed int64) {
+	rnd = rand.New(rand.NewSource(seed))
+}
+
+const (
+	ansiReset = "\x1b[0m"
+)
+
+var colorCodes = map[string]string{
+	"black":          "\x1b[30m",
+	"red":            "\x1b[31m",
+	"green":          "\x1b[32m",
+	"yellow":         "\x1b[33m",
+	"blue":           "\x1b[34m",
+	"magenta":        "\x1b[35m",
+	"cyan":           "\x1b[36m",
+	"white":          "\x1b[37m",
+	"bright_black":   "\x1b[90m",
+	"bright_red":     "\x1b[91m",
+	"bright_green":   "\x1b[92m",
+	"bright_yellow":  "\x1b[93m",
+	"bright_blue":    "\x1b[94m",
+	"bright_magenta": "\x1b[95m",
+	"bright_cyan":    "\x1b[96m",
+	"bright_white":   "\x1b[97m",
+}
+
+func detectAnsi() bool {
+	if os.Getenv("NO_COLOR") != "" {
+		return false
+	}
+	switch runtime.GOOS {
+	case "plan9":
+		return false
+	case "windows":
+		return true
+	}
+	term := os.Getenv("TERM")
+	if term == "" || term == "dumb" {
+		return false
+	}
+	return true
+}
+
+func stringifyForConcat(v interface{}) string {
+	switch val := v.(type) {
+	case string:
+		return val
+	case float64:
+		return strconv.FormatFloat(val, 'g', -1, 64)
+	case bool:
+		return strconv.FormatBool(val)
+	default:
+		return ""
+	}
+}
+
+func colorize(name, text string) string {
+	if !detectAnsi() {
+		return text
+	}
+	code, ok := colorCodes[strings.ToLower(name)]
+	if !ok {
+		return text
+	}
+	return code + text + ansiReset
+}
+
+func isStringLike(v interface{}) bool {
+	switch v.(type) {
+	case string, bool:
+		return true
+	default:
+		return false
 	}
 }
 
@@ -179,14 +264,14 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 					if len(list) == 0 {
 						return nil
 					}
-					return list[rand.Intn(len(list))]
+					return list[rnd.Intn(len(list))]
 				}
 
 				if f, ok := val.(float64); ok {
 					if int(f) <= 0 {
 						return 0.0
 					}
-					return float64(rand.Intn(int(f)))
+					return float64(rnd.Intn(int(f)))
 				}
 			}
 
@@ -206,9 +291,25 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 						return nil
 					}
 
-					return float64(rand.Intn(maximum-minimum) + minimum)
+					return float64(rnd.Intn(maximum-minimum) + minimum)
 				}
 			}
+		}
+		if n.Name == "kolor" {
+			if len(n.Args) != 2 {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (kolor() ochikuye rivno 2 argumenty!)\n")
+				return nil
+			}
+			colorArg := ev.Eval(n.Args[0], env)
+			text := ev.Eval(n.Args[1], env)
+
+			colorName, ok := colorArg.(string)
+			if !ok {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (kolor() nazva kolory ma buty ryadkom!)\n")
+				return nil
+			}
+
+			return colorize(colorName, stringifyForConcat(text))
 		}
 		if n.Name == "dodaty" {
 			if len(n.Args) != 2 {
@@ -298,32 +399,60 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 	case ast.InfixExpr:
 		leftVal := ev.Eval(n.Left, env)
 		rightVal := ev.Eval(n.Right, env)
-		left, ok1 := leftVal.(float64)
-		right, ok2 := rightVal.(float64)
-		if !ok1 || !ok2 {
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Type mismatch)\n")
-			ev.Flush()
-			os.Exit(1)
-		}
+
 		switch n.Operator {
 		case "+":
-			return left + right
-		case "-":
-			return left - right
+			if isStringLike(leftVal) || isStringLike(rightVal) {
+				return stringifyForConcat(leftVal) + stringifyForConcat(rightVal)
+			}
+			l, ok1 := leftVal.(float64)
+			r, ok2 := rightVal.(float64)
+			if !ok1 || !ok2 {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Type mismatch)\n")
+				ev.Flush()
+				os.Exit(1)
+			}
+			return l + r
+
 		case "*":
-			return left * right
-		case "/":
-			if right == 0 {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Zero divide)\n")
+			s, isString := leftVal.(string)
+			num, isFloat := rightVal.(float64)
+
+			if isString && isFloat {
+				return strings.Repeat(s, int(num))
+			}
+			s2, isString2 := rightVal.(string)
+			n2, isFloat2 := leftVal.(float64)
+			if isString2 && isFloat2 {
+				return strings.Repeat(s2, int(n2))
+			}
+
+			return leftVal.(float64) * rightVal.(float64)
+
+		case "-", "/", ">", "<", "stupin":
+			l, ok1 := leftVal.(float64)
+			r, ok2 := rightVal.(float64)
+			if !ok1 || !ok2 {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Matematyka dlya ryadkiv? Ty serjozno? (Type mismatch))\n")
 				return nil
 			}
-			return left / right
-		case ">":
-			return left > right
-		case "<":
-			return left < right
-		case "stupin":
-			return math.Pow(left, right)
+
+			switch n.Operator {
+			case "-":
+				return l - r
+			case "/":
+				if r == 0 {
+					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Na nul dilyty ne mozhna, navit u Pitoni!)\n")
+					return nil
+				}
+				return l / r
+			case ">":
+				return l > r
+			case "<":
+				return l < r
+			case "stupin":
+				return math.Pow(l, r)
+			}
 		}
 	case ast.PrefixExpr:
 		rightVal := ev.Eval(n.Right, env)
