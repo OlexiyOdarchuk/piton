@@ -41,7 +41,6 @@ const (
 	STUPIN
 	VERNUTY
 	POKY
-	KINETS
 )
 
 func (t TokenType) String() string {
@@ -50,7 +49,7 @@ func (t TokenType) String() string {
 		"IDENT", "NUMBER", "STRING", "[", "]", ",",
 		"=", "+", "-", "*", "/", ">", "<", "(", ")", ":",
 		"functia", "drukuvaty", "nekhay", "vvid", "yaksho", "inackshe",
-		"korin", "loh10", "abs", "arksyn", "kosynus", "stupin", "vernuty", "poky", "kinets",
+		"korin", "loh10", "abs", "arksyn", "kosynus", "stupin", "vernuty", "poky",
 	}
 	if t >= 0 && int(t) < len(names) {
 		return names[t]
@@ -94,8 +93,6 @@ func LookupIdent(ident string) TokenType {
 		return VERNUTY
 	case "poky":
 		return POKY
-	case "kinets":
-		return KINETS
 	default:
 		return IDENT
 	}

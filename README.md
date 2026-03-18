@@ -61,7 +61,6 @@ functia main():
         drukuvaty klasify()
         
         i = i + 1
-    kinets
 
 # Допоміжна функція
 functia klasify():

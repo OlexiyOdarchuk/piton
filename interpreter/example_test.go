@@ -37,14 +37,12 @@ functia main():
         drukuvaty "    Класифікація:"
         drukuvaty klasify()
         i = i + 1
-    kinets
 
     drukuvaty "\nСписок операцій:"
     nekhay cursor = 0
     poky cursor < dovzhyna(terms):
         drukuvaty terms[cursor]
         cursor = cursor + 1
-    kinets
 
     nekhay first = values[0]
     nekhay last = values[dovzhyna(values) - 1]
@@ -69,7 +67,6 @@ functia main():
     poky i < 10:
         drukuvaty fib(i)
         i = i + 1
-    kinets
 
 	drukuvaty "\nОб'єднання списків"
 	nekhay list1 = [1,2,3]
@@ -115,7 +112,6 @@ functia average():
     poky i < dovzhyna(values):
         sum = sum + values[i]
         i = i + 1
-    kinets
     vernuty sum / dovzhyna(values)
 
 functia memo():
