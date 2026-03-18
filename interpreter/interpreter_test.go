@@ -111,6 +111,35 @@ func TestRunFunctionsAndScoping(t *testing.T) {
 	}
 }
 
+func TestRunFunctionArguments(t *testing.T) {
+	code := "" +
+		"functia repeat(label, count):\n" +
+		"    nekhay i = 0\n" +
+		"    poky i < count:\n" +
+		"        drukuvaty label\n" +
+		"        i = i + 1\n" +
+		"    kinets\n" +
+		"repeat(\"hi\", 2)\n"
+
+	want := "hi\nhi\n"
+	if got := runWithBuffer(t, code); got != want {
+		t.Fatalf("got %q want %q", got, want)
+	}
+}
+
+func TestRunFunctionArgumentMismatch(t *testing.T) {
+	code := "" +
+		"functia echo(value, label):\n" +
+		"    drukuvaty label\n" +
+		"    drukuvaty value\n" +
+		"echo(1)\n"
+
+	want := "Ryadok [-]: A tak yak ty pyshesh, tak buty ne maye! (funkciya echo ochikuye 2 argumentiv, a ty dav 1)\n"
+	if got := runWithBuffer(t, code); got != want {
+		t.Fatalf("got %q want %q", got, want)
+	}
+}
+
 func TestRunDrukuvatyOutput(t *testing.T) {
 	code := "" +
 		"drukuvaty \"hello\"\n" +

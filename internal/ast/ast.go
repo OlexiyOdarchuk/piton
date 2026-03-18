@@ -15,8 +15,9 @@ type Program struct{ Statements []Stmt }
 func (Program) stmt() {}
 
 type FuncDefStmt struct {
-	Name string
-	Body []Stmt
+	Name   string
+	Params []string
+	Body   []Stmt
 }
 
 func (FuncDefStmt) stmt() {}

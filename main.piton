@@ -55,6 +55,16 @@ functia main():
     drukuvaty "\nГрошовий сигнал:"
     drukuvaty memo()
 
+    drukuvaty "\nДемонстрація передачі аргументів:"
+    formatValue(first, "Початкове значення:")
+
+    drukuvaty "\nФункція пошуку чисел Фібоначі (рекурсія):"
+    nekhay i = 0
+    poky i < 10:
+        drukuvaty fib(i)
+        i = i + 1
+    kinets
+
 main()
 
 functia klasify():
@@ -77,3 +87,13 @@ functia average():
 functia memo():
     nekhay summaryIndex = dovzhyna(terms) - 2
     vernuty korin (summaryIndex stupin 2) + loh10 (dovzhyna(values)) + abs (0 - currentValue)
+
+functia formatValue(value, label):
+    drukuvaty label
+    drukuvaty value
+
+functia fib(n):
+    yaksho n < 2:
+        vernuty n
+    inackshe:
+        vernuty fib(n - 1) + fib(n - 2)
