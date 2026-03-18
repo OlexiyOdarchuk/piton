@@ -3,13 +3,18 @@ package interpreter
 import (
 	"bytes"
 	"fmt"
-	"math/rand"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/OlexiyOdarchuk/piton/internal/evaluator"
 )
+
+func init() {
+	os.Setenv("NO_COLOR", "1")
+}
 
 func runWithBuffer(t *testing.T, code string) string {
 	t.Helper()
@@ -75,6 +80,67 @@ func TestRunMathOperations(t *testing.T) {
 				t.Fatalf("got %q want %q", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestZaokruhlennya(t *testing.T) {
+	code := "drukuvaty zaokruhlennya(123.4567, 2)"
+	if got := runWithBuffer(t, code); got != "123.46\n" {
+		t.Fatalf("got %q want %q", got, "123.46\n")
+	}
+}
+
+func TestKolorFunction(t *testing.T) {
+	prev := os.Getenv("NO_COLOR")
+	t.Cleanup(func() {
+		if prev == "" {
+			os.Unsetenv("NO_COLOR")
+			return
+		}
+		os.Setenv("NO_COLOR", prev)
+	})
+	os.Unsetenv("NO_COLOR")
+
+	code := "drukuvaty kolor(\"red\", \"alert\")"
+	want := "\x1b[31malert\x1b[0m\n"
+	if got := runWithBuffer(t, code); got != want {
+		t.Fatalf("got %q want %q", got, want)
+	}
+}
+
+func TestStringConcatMix(t *testing.T) {
+	tests := []struct {
+		name string
+		code string
+		want string
+	}{
+		{name: "str+num", code: "drukuvaty \"hello\" + 2", want: "hello2\n"},
+		{name: "num+str", code: "drukuvaty 2 + \"hello\"", want: "2hello\n"},
+		{name: "str+bool", code: "drukuvaty \"hello\" + true", want: "hellotrue\n"},
+		{name: "bool+str", code: "drukuvaty false + \"ok\"", want: "falseok\n"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := runWithBuffer(t, tt.code); got != tt.want {
+				t.Fatalf("got %q want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestChas(t *testing.T) {
+	code := "nekhay a = chas()\nnekhay b = chas()\ndrukuvaty b - a"
+	val := parseFloatOutput(t, runWithBuffer(t, code))
+	if val < 0 {
+		t.Fatalf("chronological imbalance: %v", val)
+	}
+}
+
+func TestZatrymka(t *testing.T) {
+	code := "nekhay start = chas()\nzatrymka(0.05)\nnekhay elapsed = chas() - start\ndrukuvaty elapsed"
+	val := parseFloatOutput(t, runWithBuffer(t, code))
+	if val < 0.04 {
+		t.Fatalf("expected at least ~0.05s delay, got %v", val)
 	}
 }
 
@@ -256,7 +322,7 @@ func TestVypadkovo(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rand.Seed(42)
+			evaluator.SeedRandom(42)
 			tt.check(t, runWithBuffer(t, tt.code))
 		})
 	}

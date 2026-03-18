@@ -1,0 +1,10 @@
+nekhay start = chas()
+nekhay i = 0
+poky i < 10000000:
+    drukuvaty i
+    i = i+1
+trata = chas() - start
+drukuvaty zaokruhlennya(trata, 3)
+
+zatrymka(3)
+drukuvaty "Goodbye"
