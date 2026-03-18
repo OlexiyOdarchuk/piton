@@ -78,7 +78,7 @@ func (p *Parser) peekPrecedence() int {
 	return LOWEST
 }
 
-func (p *Parser) parseListLiteral() ast.Expr {
+func (p *Parser) parseSpysokLiteral() ast.Expr {
 	p.pos++
 	var elements []ast.Expr
 	if p.current().Type != token.RBRACKET {
@@ -90,7 +90,7 @@ func (p *Parser) parseListLiteral() ast.Expr {
 		}
 	}
 	p.expect(token.RBRACKET)
-	return ast.ListLiteral{Elements: elements}
+	return ast.SpysokLiteral{Elements: elements}
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expr {
@@ -109,7 +109,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 		p.pos++
 		leftExp = ast.StringLiteral{Value: tok.Literal}
 	case token.LBRACKET:
-		leftExp = p.parseListLiteral()
+		leftExp = p.parseSpysokLiteral()
 	case token.LPAREN:
 		p.pos++
 		leftExp = p.parseExpression(LOWEST)
@@ -147,9 +147,32 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 
 		if opToken.Type == token.LBRACKET {
 			p.pos++
-			index := p.parseExpression(LOWEST)
+
+			if p.current().Type == token.COLON {
+				p.pos++
+				var end ast.Expr
+				if p.current().Type != token.RBRACKET {
+					end = p.parseExpression(LOWEST)
+				}
+				p.expect(token.RBRACKET)
+				leftExp = ast.SpysokExpr{Left: leftExp, End: end}
+				continue
+			}
+
+			start := p.parseExpression(LOWEST)
+			if p.current().Type == token.COLON {
+				p.pos++
+				var end ast.Expr
+				if p.current().Type != token.RBRACKET {
+					end = p.parseExpression(LOWEST)
+				}
+				p.expect(token.RBRACKET)
+				leftExp = ast.SpysokExpr{Left: leftExp, Start: start, End: end}
+				continue
+			}
+
 			p.expect(token.RBRACKET)
-			leftExp = ast.IndexExpr{Left: leftExp, Index: index}
+			leftExp = ast.IndexExpr{Left: leftExp, Index: start}
 			continue
 		}
 

@@ -194,26 +194,51 @@ func TestHelperProcess(t *testing.T) {
 	os.Exit(0)
 }
 
-func TestList(t *testing.T) {
+func TestSpysok(t *testing.T) {
 	tests := []struct {
 		name string
 		expr string
 		want string
 	}{
 		{
-			"Print list from literal",
+			"Print spysok from literal",
 			"drukuvaty [14,5,1,\"Hello\",2]",
 			"[14, 5, 1, \"Hello\", 2]\n",
 		},
 		{
-			"Print list from variable",
+			"Print spysok from variable",
 			"nekhay a = [14,5,1,\"Hello\",2]\ndrukuvaty a",
 			"[14, 5, 1, \"Hello\", 2]\n",
 		},
 		{
-			"All List",
+			"All spysok",
 			"nekhay s = [10, 20, 30, 40]\ndrukuvaty dovzhyna(s)\ndrukuvaty s[dovzhyna(s) - 1]",
 			"4\n40\n",
+		},
+		{
+			"Spysok range",
+			"nekhay s = [1, 2, 3, 4]\ndrukuvaty s[1:3]",
+			"[2, 3]\n",
+		},
+		{
+			"Spysok to end",
+			"nekhay s = [1, 2, 3, 4]\ndrukuvaty s[2:]",
+			"[3, 4]\n",
+		},
+		{
+			"Spysok from start",
+			"nekhay s = [1, 2, 3, 4]\ndrukuvaty s[:2]",
+			"[1, 2]\n",
+		},
+		{
+			"Full spysok",
+			"nekhay s = [1, 2, 3, 4]\ndrukuvaty s[:]",
+			"[1, 2, 3, 4]\n",
+		},
+		{
+			"Go-style removal",
+			"nekhay s = [1, 2, 3, 4]\nnekhay i = 2\nnekhay trimmed = dodaty(s[:i], s[i + 1:])\ndrukuvaty trimmed",
+			"[1, 2, 4]\n",
 		},
 	}
 	for _, tt := range tests {
@@ -235,6 +260,32 @@ func TestPoky(t *testing.T) {
 			"Print full script with cycle",
 			"nekhay i = 0\nnekhay s = [1, 2, 3]\npoky i < dovzhyna(s):\n	drukuvaty s[i]\n	i = i + 1\nkinets",
 			"1\n2\n3\n",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := runWithBuffer(t, tt.expr); got != tt.want {
+				t.Fatalf("got %q want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDodaty(t *testing.T) {
+	tests := []struct {
+		name string
+		expr string
+		want string
+	}{
+		{
+			"Dodaty one element",
+			"nekhay a = [1,2,3]\na = dodaty(a,4)\ndrukuvaty a",
+			"[1, 2, 3, 4]\n",
+		},
+		{
+			"Dodaty list to list",
+			"nekhay a = [1,2,3]\nnekhay b = [4, 5, 6]\na = dodaty(a,b)\ndrukuvaty a",
+			"[1, 2, 3, 4, 5, 6]\n",
 		},
 	}
 	for _, tt := range tests {

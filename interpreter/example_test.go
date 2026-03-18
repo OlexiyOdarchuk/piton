@@ -71,6 +71,34 @@ functia main():
         i = i + 1
     kinets
 
+	drukuvaty "\nОб'єднання списків"
+	nekhay list1 = [1,2,3]
+	nekhay list2 = [4,5,6]
+	drukuvaty "\nПерший список:"
+	drukuvaty list1
+	drukuvaty "\nДругий список:"
+	drukuvaty list2
+	drukuvaty "\nОб'єднані списки:"
+	drukuvaty dodaty(list1, list2)
+
+	drukuvaty "\nДодати елемент до списку"
+	nekhay list = [1,2,3]
+	nekhay newElement = "hello"
+	drukuvaty "\nПочатковий список:"
+    drukuvaty list
+    drukuvaty "\nНовий елемент:"
+    drukuvaty newElement
+    drukuvaty "\nНовий список:"
+	drukuvaty dodaty(list, newElement)
+
+	drukuvaty "\nВидалення елементу з індексом 1"
+	nekhay base = [1,2,3]
+	drukuvaty "Початковий список:"
+	drukuvaty base
+	nekhay trimmed = dodaty(base[:1], base[2:])
+	drukuvaty "\nСписок без елементу з індексом 1:"
+	drukuvaty trimmed
+
 main()
 
 functia klasify():
@@ -249,4 +277,34 @@ functia fib(n):
 	// 13
 	// 21
 	// 34
+	//
+	// Об'єднання списків
+	//
+	// Перший список:
+	// [1, 2, 3]
+	//
+	// Другий список:
+	// [4, 5, 6]
+	//
+	// Об'єднані списки:
+	// [1, 2, 3, 4, 5, 6]
+	//
+	//
+	// Додати елемент до списку
+	//
+	// Початковий список:
+	// [1, 2, 3]
+	//
+	// Новий елемент:
+	// hello
+	//
+	// Новий список:
+	// [1, 2, 3, "hello"]
+	//
+	// Видалення елементу з індексом 1
+	// Початковий список:
+	// [1, 2, 3]
+	//
+	// Список без елементу з індексом 1:
+	// [1, 3]
 }

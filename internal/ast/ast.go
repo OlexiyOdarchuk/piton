@@ -107,9 +107,9 @@ type Identifier struct{ Value string }
 
 func (Identifier) expr() {}
 
-type ListLiteral struct{ Elements []Expr }
+type SpysokLiteral struct{ Elements []Expr }
 
-func (ListLiteral) expr() {}
+func (SpysokLiteral) expr() {}
 
 type IndexExpr struct {
 	Left  Expr
@@ -117,3 +117,11 @@ type IndexExpr struct {
 }
 
 func (IndexExpr) expr() {}
+
+type SpysokExpr struct {
+	Left  Expr
+	Start Expr // if nil - this is start
+	End   Expr // if nil - this is end
+}
+
+func (SpysokExpr) expr() {}
