@@ -20,3 +20,9 @@ func (e *Environment) Get(name string) (interface{}, bool) {
 func (e *Environment) Set(name string, val interface{}) {
 	e.store[name] = val
 }
+
+func (e *Environment) ForEach(fn func(name string, val interface{})) {
+	for name, val := range e.store {
+		fn(name, val)
+	}
+}

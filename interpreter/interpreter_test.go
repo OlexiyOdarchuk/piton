@@ -144,6 +144,14 @@ func TestZatrymka(t *testing.T) {
 	}
 }
 
+func TestVykorystatyImports(t *testing.T) {
+	code := "vykorystaty \"../examples/hello\"\nhello.Hello(\"Pit\")\n"
+	want := "Hello Pit!\n"
+	if got := runWithBuffer(t, code); got != want {
+		t.Fatalf("got %q want %q", got, want)
+	}
+}
+
 func TestRunLogicBranches(t *testing.T) {
 	const codeTemplate = "nekhay a = %d\n" +
 		"yaksho a > 3:\n" +

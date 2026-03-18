@@ -6,12 +6,15 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/OlexiyOdarchuk/piton/internal/ast"
+	"github.com/OlexiyOdarchuk/piton/internal/lexer"
+	"github.com/OlexiyOdarchuk/piton/internal/parser"
 )
 
 type Evaluator struct {
@@ -196,141 +199,155 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 	case ast.ExprStmt:
 		return ev.Eval(n.Expr, env)
 	case ast.CallExpr:
-		if n.Name == "zaokruhlennya" {
-			val := ev.Eval(n.Args[0], env)
-			f, ok := val.(float64)
-			if !ok {
-				return val
-			}
-
-			precision := 0.0
-			if len(n.Args) == 2 {
-				pVal := ev.Eval(n.Args[1], env)
-				if p, ok := pVal.(float64); ok {
-					precision = p
+		if n.Receiver == nil {
+			if n.Name == "zaokruhlennya" {
+				val := ev.Eval(n.Args[0], env)
+				f, ok := val.(float64)
+				if !ok {
+					return val
 				}
-			}
 
-			pow := math.Pow(10, precision)
-			return math.Round(f*pow) / pow
-		}
-		if n.Name == "zatrymka" {
-			if len(n.Args) != 1 {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (zatrymka() ochikuye rivno 1 arhument!)\n")
+				precision := 0.0
+				if len(n.Args) == 2 {
+					pVal := ev.Eval(n.Args[1], env)
+					if p, ok := pVal.(float64); ok {
+						precision = p
+					}
+				}
+
+				pow := math.Pow(10, precision)
+				return math.Round(f*pow) / pow
+			}
+			if n.Name == "zatrymka" {
+				if len(n.Args) != 1 {
+					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (zatrymka() ochikuye rivno 1 arhument!)\n")
+					return nil
+				}
+
+				zatrymka := ev.Eval(n.Args[0], env)
+				if chas, ok := zatrymka.(float64); ok {
+					d := time.Duration(chas * float64(time.Second))
+					time.Sleep(d)
+					return nil
+				}
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (zatrymka() ochikue chislo v secundah!)\n")
 				return nil
 			}
-
-			zatrymka := ev.Eval(n.Args[0], env)
-			if chas, ok := zatrymka.(float64); ok {
-				d := time.Duration(chas * float64(time.Second))
-				time.Sleep(d)
-				return nil
+			if n.Name == "chas" {
+				if len(n.Args) != 0 {
+					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (chas() ne ochikuye arhumentiv!)\n")
+					return nil
+				}
+				return float64(time.Now().UnixMicro()) / 1_000_000.0
 			}
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (zatrymka() ochikue chislo v secundah!)\n")
-			return nil
-		}
-		if n.Name == "chas" {
-			if len(n.Args) != 0 {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (chas() ne ochikuye arhumentiv!)\n")
-				return nil
-			}
-			return float64(time.Now().UnixMicro()) / 1_000_000.0
-		}
-		if n.Name == "dovzhyna" {
-			if len(n.Args) != 1 {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() ochikuye rivno 1 arhument!)\n")
-				return nil
-			}
+			if n.Name == "dovzhyna" {
+				if len(n.Args) != 1 {
+					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() ochikuye rivno 1 arhument!)\n")
+					return nil
+				}
 
-			val := ev.Eval(n.Args[0], env)
-
-			if list, ok := val.([]interface{}); ok {
-				return float64(len(list))
-			}
-
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() pratsyuye tilky zi spyskamy!)\n")
-			return nil
-		}
-		if n.Name == "vypadkovo" {
-			if len(n.Args) != 2 && len(n.Args) != 1 {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vypadkovo() ochikuye 1 abo 2 arhumentu!)\n")
-				return nil
-			}
-
-			if len(n.Args) == 1 {
 				val := ev.Eval(n.Args[0], env)
 
 				if list, ok := val.([]interface{}); ok {
-					if len(list) == 0 {
-						return nil
-					}
-					return list[rnd.Intn(len(list))]
+					return float64(len(list))
 				}
 
-				if f, ok := val.(float64); ok {
-					if int(f) <= 0 {
-						return 0.0
-					}
-					return float64(rnd.Intn(int(f)))
-				}
-			}
-
-			if len(n.Args) == 2 {
-				s := ev.Eval(n.Args[0], env)
-				e := ev.Eval(n.Args[1], env)
-
-				start, ok1 := s.(float64)
-				end, ok2 := e.(float64)
-
-				if ok1 && ok2 {
-					minimum := int(start)
-					maximum := int(end)
-
-					if maximum <= minimum {
-						ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vypadkovo() minimum ne mozhe buty > za maximum!)\n")
-						return nil
-					}
-
-					return float64(rnd.Intn(maximum-minimum) + minimum)
-				}
-			}
-		}
-		if n.Name == "kolor" {
-			if len(n.Args) != 2 {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (kolor() ochikuye rivno 2 argumenty!)\n")
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() pratsyuye tilky zi spyskamy!)\n")
 				return nil
 			}
-			colorArg := ev.Eval(n.Args[0], env)
-			text := ev.Eval(n.Args[1], env)
+			if n.Name == "vypadkovo" {
+				if len(n.Args) != 2 && len(n.Args) != 1 {
+					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vypadkovo() ochikuye 1 abo 2 arhumentu!)\n")
+					return nil
+				}
 
-			colorName, ok := colorArg.(string)
+				if len(n.Args) == 1 {
+					val := ev.Eval(n.Args[0], env)
+
+					if list, ok := val.([]interface{}); ok {
+						if len(list) == 0 {
+							return nil
+						}
+						return list[rnd.Intn(len(list))]
+					}
+
+					if f, ok := val.(float64); ok {
+						if int(f) <= 0 {
+							return 0.0
+						}
+						return float64(rnd.Intn(int(f)))
+					}
+				}
+
+				if len(n.Args) == 2 {
+					s := ev.Eval(n.Args[0], env)
+					e := ev.Eval(n.Args[1], env)
+
+					start, ok1 := s.(float64)
+					end, ok2 := e.(float64)
+
+					if ok1 && ok2 {
+						minimum := int(start)
+						maximum := int(end)
+
+						if maximum <= minimum {
+							ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vypadkovo() minimum ne mozhe buty > za maximum!)\n")
+							return nil
+						}
+
+						return float64(rnd.Intn(maximum-minimum) + minimum)
+					}
+				}
+			}
+			if n.Name == "kolor" {
+				if len(n.Args) != 2 {
+					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (kolor() ochikuye rivno 2 argumenty!)\n")
+					return nil
+				}
+				colorArg := ev.Eval(n.Args[0], env)
+				text := ev.Eval(n.Args[1], env)
+
+				colorName, ok := colorArg.(string)
+				if !ok {
+					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (kolor() nazva kolory ma buty ryadkom!)\n")
+					return nil
+				}
+
+				return colorize(colorName, stringifyForConcat(text))
+			}
+			if n.Name == "dodaty" {
+				if len(n.Args) != 2 {
+					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dodaty() ochikuye rivno 2 arhumentu!)\n")
+					return nil
+				}
+
+				list := ev.Eval(n.Args[0], env)
+				element := ev.Eval(n.Args[1], env)
+
+				if arr, ok := list.([]interface{}); ok {
+					if secondArr, ok := element.([]interface{}); ok {
+						return append(arr, secondArr...)
+					}
+					return append(arr, element)
+				}
+
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dodaty() pratsyuye tilky zi spyskamy!)\n")
+				return nil
+			}
+		}
+
+		targetEnv := ev.Globals
+		if n.Receiver != nil {
+			receiverVal := ev.Eval(n.Receiver, env)
+			moduleEnv, ok := receiverVal.(*Environment)
 			if !ok {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (kolor() nazva kolory ma buty ryadkom!)\n")
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (nema takogo modula!)\n")
 				return nil
 			}
-
-			return colorize(colorName, stringifyForConcat(text))
+			targetEnv = moduleEnv
 		}
-		if n.Name == "dodaty" {
-			if len(n.Args) != 2 {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dodaty() ochikuye rivno 2 arhumentu!)\n")
-				return nil
-			}
 
-			list := ev.Eval(n.Args[0], env)
-			element := ev.Eval(n.Args[1], env)
-
-			if arr, ok := list.([]interface{}); ok {
-				if secondArr, ok := element.([]interface{}); ok {
-					return append(arr, secondArr...)
-				}
-				return append(arr, element)
-			}
-
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dodaty() pratsyuye tilky zi spyskamy!)\n")
-			return nil
-		}
-		fnDefIf, ok := ev.Globals.Get(n.Name)
+		fnDefIf, ok := targetEnv.Get(n.Name)
 		if !ok {
 			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Unknown function: " + n.Name + ")\n")
 			ev.Flush()
@@ -574,6 +591,47 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 				ev.Eval(stmt, env)
 			}
 		}
+		return nil
+	case ast.ImportStmt:
+		filenameVal := ev.Eval(n.Filename, env)
+		filename, ok := filenameVal.(string)
+		if !ok {
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vykorystaty ochikue nazvy faila!)\n")
+			return nil
+		}
+		content, err := os.ReadFile(filename + ".piton")
+		if err != nil {
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (pomylka chitannya faila!)\n")
+			return nil
+		}
+		tokens := lexer.Tokenize(string(content))
+		p := parser.New(tokens)
+		importedProgram := p.ParseProgram()
+
+		moduleEnv := NewEnv(ev.Globals)
+		ev.Eval(importedProgram, moduleEnv)
+
+		moduleName := filepath.Base(filename)
+		ev.Globals.Set(moduleName, moduleEnv)
+
+		moduleEnv.ForEach(func(name string, val interface{}) {
+			if _, exists := ev.Globals.Get(name); !exists {
+				ev.Globals.Set(name, val)
+			}
+		})
+		return nil
+	case ast.SelectorExpr:
+		leftVal := ev.Eval(n.Left, env)
+
+		if module, ok := leftVal.(*Environment); ok {
+			val, ok := module.Get(n.Right)
+			if ok {
+				return val
+			}
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (u modula nema takogo polya!)\n")
+			return nil
+		}
+		ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (nema takogo modula!)\n")
 		return nil
 	}
 	return nil
