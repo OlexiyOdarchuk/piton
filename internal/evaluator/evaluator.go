@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/OlexiyOdarchuk/piton/internal/ast"
 )
@@ -85,6 +86,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 				ev.Out.WriteString("false\n")
 			}
 		}
+		ev.Flush()
 		return nil
 
 	case ast.VarDecStmt:
@@ -109,6 +111,46 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 	case ast.ExprStmt:
 		return ev.Eval(n.Expr, env)
 	case ast.CallExpr:
+		if n.Name == "zaokruhlennya" {
+			val := ev.Eval(n.Args[0], env)
+			f, ok := val.(float64)
+			if !ok {
+				return val
+			}
+
+			precision := 0.0
+			if len(n.Args) == 2 {
+				pVal := ev.Eval(n.Args[1], env)
+				if p, ok := pVal.(float64); ok {
+					precision = p
+				}
+			}
+
+			pow := math.Pow(10, precision)
+			return math.Round(f*pow) / pow
+		}
+		if n.Name == "zatrymka" {
+			if len(n.Args) != 1 {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (zatrymka() ochikuye rivno 1 arhument!)\n")
+				return nil
+			}
+
+			zatrymka := ev.Eval(n.Args[0], env)
+			if chas, ok := zatrymka.(float64); ok {
+				d := time.Duration(chas * float64(time.Second))
+				time.Sleep(d)
+				return nil
+			}
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (zatrymka() ochikue chislo v secundah!)\n")
+			return nil
+		}
+		if n.Name == "chas" {
+			if len(n.Args) != 0 {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (chas() ne ochikuye arhumentiv!)\n")
+				return nil
+			}
+			return float64(time.Now().UnixMicro()) / 1_000_000.0
+		}
 		if n.Name == "dovzhyna" {
 			if len(n.Args) != 1 {
 				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() ochikuye rivno 1 arhument!)\n")
