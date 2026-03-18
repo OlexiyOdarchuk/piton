@@ -293,16 +293,7 @@ func (p *Parser) parseStatement() ast.Stmt {
 		condition := p.parseExpression(LOWEST)
 		p.expect(token.COLON)
 		p.consumeNewlineOrEOF()
-
-		var body []ast.Stmt
-
-		for p.current().Type != token.KINETS && p.current().Type != token.EOF {
-			stmt := p.parseBlock()
-			if stmt != nil {
-				body = stmt
-			}
-		}
-		p.expect(token.KINETS)
+		body := p.parseBlock()
 		return ast.PokyStmt{Condition: condition, Body: body}
 	case token.IDENT:
 		saved := p.pos

@@ -130,7 +130,6 @@ func TestRunFunctionArguments(t *testing.T) {
 		"    poky i < count:\n" +
 		"        drukuvaty label\n" +
 		"        i = i + 1\n" +
-		"    kinets\n" +
 		"repeat(\"hi\", 2)\n"
 
 	want := "hi\nhi\n"
@@ -327,7 +326,7 @@ func TestPoky(t *testing.T) {
 	}{
 		{
 			"Print full script with cycle",
-			"nekhay i = 0\nnekhay s = [1, 2, 3]\npoky i < dovzhyna(s):\n	drukuvaty s[i]\n	i = i + 1\nkinets",
+			"nekhay i = 0\nnekhay s = [1, 2, 3]\npoky i < dovzhyna(s):\n	drukuvaty s[i]\n	i = i + 1",
 			"1\n2\n3\n",
 		},
 	}

@@ -19,7 +19,6 @@ functia main():
         drukuvaty "  Результат:"
         drukuvaty categorize(duration, target)
         i = i + 1
-    kinets
 
     nekhay averageDuration = average(sessions)
     nekhay swing = deviation(sessions)
@@ -51,7 +50,6 @@ functia average(values):
     poky idx < dovzhyna(values):
         total = total + values[idx]
         idx = idx + 1
-    kinets
     vernuty total / dovzhyna(values)
 
 functia deviation(values):
@@ -64,7 +62,6 @@ functia deviation(values):
         inackshe yaksho values[idx] < lowest:
             lowest = values[idx]
         idx = idx + 1
-    kinets
     vernuty highest - lowest
 
 main()
