@@ -1,3 +1,11 @@
+/*
+Piton is a high-performance interpreter for the Piton programming language.
+It was born from a typo and evolved into a fast, Go-based execution engine.
+
+Usage:
+
+	piton <filename.piton>
+*/
 package main
 
 import (

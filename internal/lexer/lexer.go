@@ -18,6 +18,9 @@ func Tokenize(input string) []token.Token {
 	OuterLoop:
 		for _, ch := range line {
 			switch ch {
+			case '#':
+				line = ""
+				break OuterLoop
 			case ' ':
 				indent++
 			case '\t':

@@ -1,0 +1,70 @@
+nekhay sessions = [35, 40, 28, 55, 47, 33]
+nekhay target = 40
+
+functia main():
+    drukuvaty "\n=== Трекер навчальних сесій ==="
+    nekhay total = 0
+    nekhay i = 0
+    poky i < dovzhyna(sessions):
+        nekhay duration = sessions[i]
+        total = total + duration
+        drukuvaty "\nСесія"
+        drukuvaty i + 1
+        drukuvaty "  Тривалість:"
+        drukuvaty duration
+        drukuvaty "  Відхилення від мети:"
+        drukuvaty abs (duration - target)
+        drukuvaty "  Інтенсивність:"
+        drukuvaty heatMeter(duration)
+        drukuvaty "  Результат:"
+        drukuvaty categorize(duration, target)
+        i = i + 1
+    kinets
+
+    nekhay averageDuration = average(sessions)
+    nekhay swing = deviation(sessions)
+    drukuvaty "\nСередня тривалість:"
+    drukuvaty averageDuration
+    yaksho averageDuration > target:
+        drukuvaty "Ціль на рівні"
+    inackshe:
+        drukuvaty "Потрібно більше концентрації"
+
+    drukuvaty "\nРозмах сесій:"
+    drukuvaty swing
+
+
+functia categorize(duration, benchmark):
+    yaksho duration > benchmark:
+        vernuty "Вражаюче"
+    inackshe yaksho duration > benchmark - 10:
+        vernuty "Добре"
+    inackshe:
+        vernuty "Потрібно докласти зусиль"
+
+functia heatMeter(duration):
+    vernuty korin (duration stupin 2)
+
+functia average(values):
+    nekhay total = 0
+    nekhay idx = 0
+    poky idx < dovzhyna(values):
+        total = total + values[idx]
+        idx = idx + 1
+    kinets
+    vernuty total / dovzhyna(values)
+
+functia deviation(values):
+    nekhay highest = values[0]
+    nekhay lowest = values[0]
+    nekhay idx = 1
+    poky idx < dovzhyna(values):
+        yaksho values[idx] > highest:
+            highest = values[idx]
+        inackshe yaksho values[idx] < lowest:
+            lowest = values[idx]
+        idx = idx + 1
+    kinets
+    vernuty highest - lowest
+
+main()
