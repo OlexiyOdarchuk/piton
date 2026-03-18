@@ -1,0 +1,22 @@
+nekhay base = [1, 2, 3]
+nekhay items = [4, 5]
+nekhay single = 100
+
+drukuvaty "--- Dodaty Demo ---"
+drukuvaty "Початковий список:"
+drukuvaty base
+
+drukuvaty "Додаємо список items:"
+drukuvaty dodaty(base, items)
+
+drukuvaty "Додаємо один елемент (single):"
+drukuvaty dodaty(base, single)
+
+drukuvaty "Поєднання кількох викликів:" 
+nekhay first = dodaty(base, items)
+nekhay second = dodaty(first, single)
+drukuvaty second
+
+drukuvaty "Видалення елементу з індексом 1"
+nekhay trimmed = dodaty(base[:1], base[2:])
+drukuvaty trimmed

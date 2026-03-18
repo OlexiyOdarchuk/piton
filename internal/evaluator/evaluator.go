@@ -123,6 +123,25 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() pratsyuye tilky zi spyskamy!)\n")
 			return nil
 		}
+		if n.Name == "dodaty" {
+			if len(n.Args) != 2 {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dodaty() ochikuye rivno 2 arhumentu!)\n")
+				return nil
+			}
+
+			list := ev.Eval(n.Args[0], env)
+			element := ev.Eval(n.Args[1], env)
+
+			if arr, ok := list.([]interface{}); ok {
+				if secondArr, ok := element.([]interface{}); ok {
+					return append(arr, secondArr...)
+				}
+				return append(arr, element)
+			}
+
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dodaty() pratsyuye tilky zi spyskamy!)\n")
+			return nil
+		}
 		fnDefIf, ok := ev.Globals.Get(n.Name)
 		if !ok {
 			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Unknown function: " + n.Name + ")\n")
@@ -251,7 +270,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			os.Exit(1)
 		}
 		return v
-	case ast.ListLiteral:
+	case ast.SpysokLiteral:
 		elements := make([]interface{}, len(n.Elements))
 		for i, expr := range n.Elements {
 			elements[i] = ev.Eval(expr, env)
@@ -279,6 +298,54 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			return nil
 		}
 		return list[i]
+	case ast.SpysokExpr:
+		listVal := ev.Eval(n.Left, env)
+		arr, ok := listVal.([]interface{})
+		if !ok {
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Spysok-zriz pratsyuye tilky zi spyskamy!)\n")
+			return nil
+		}
+
+		parseIndex := func(expr ast.Expr) (int, bool) {
+			val := ev.Eval(expr, env)
+			number, ok := val.(float64)
+			if !ok {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index zrizu maye buty chislom!)\n")
+				return 0, false
+			}
+			if math.Trunc(number) != number {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index zrizu maye buty cilum chislom!)\n")
+				return 0, false
+			}
+			return int(number), true
+		}
+
+		start := 0
+		if n.Start != nil {
+			if idx, ok := parseIndex(n.Start); ok {
+				start = idx
+			} else {
+				return nil
+			}
+		}
+
+		end := len(arr)
+		if n.End != nil {
+			if idx, ok := parseIndex(n.End); ok {
+				end = idx
+			} else {
+				return nil
+			}
+		}
+
+		if start < 0 || end < 0 || start > len(arr) || end > len(arr) || start > end {
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Indexu zrizu poza zrizom!)\n")
+			return nil
+		}
+
+		result := make([]interface{}, end-start)
+		copy(result, arr[start:end])
+		return result
 	case ast.PokyStmt:
 		for {
 			cond := ev.Eval(n.Condition, env)
