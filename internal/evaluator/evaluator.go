@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"math"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -122,6 +123,50 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 
 			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() pratsyuye tilky zi spyskamy!)\n")
 			return nil
+		}
+		if n.Name == "vypadkovo" {
+			if len(n.Args) != 2 && len(n.Args) != 1 {
+				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vypadkovo() ochikuye 1 abo 2 arhumentu!)\n")
+				return nil
+			}
+
+			if len(n.Args) == 1 {
+				val := ev.Eval(n.Args[0], env)
+
+				if list, ok := val.([]interface{}); ok {
+					if len(list) == 0 {
+						return nil
+					}
+					return list[rand.Intn(len(list))]
+				}
+
+				if f, ok := val.(float64); ok {
+					if int(f) <= 0 {
+						return 0.0
+					}
+					return float64(rand.Intn(int(f)))
+				}
+			}
+
+			if len(n.Args) == 2 {
+				s := ev.Eval(n.Args[0], env)
+				e := ev.Eval(n.Args[1], env)
+
+				start, ok1 := s.(float64)
+				end, ok2 := e.(float64)
+
+				if ok1 && ok2 {
+					minimum := int(start)
+					maximum := int(end)
+
+					if maximum <= minimum {
+						ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vypadkovo() minimum ne mozhe buty > za maximum!)\n")
+						return nil
+					}
+
+					return float64(rand.Intn(maximum-minimum) + minimum)
+				}
+			}
 		}
 		if n.Name == "dodaty" {
 			if len(n.Args) != 2 {
