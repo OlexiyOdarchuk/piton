@@ -446,7 +446,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 
 			return leftVal.(float64) * rightVal.(float64)
 
-		case "-", "/", ">", "<", "stupin":
+		case "-", "/", ">", ">=", "<", "<=", "==", "!=", "stupin":
 			l, ok1 := leftVal.(float64)
 			r, ok2 := rightVal.(float64)
 			if !ok1 || !ok2 {
@@ -465,8 +465,16 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 				return l / r
 			case ">":
 				return l > r
+			case ">=":
+				return l >= r
 			case "<":
 				return l < r
+			case "<=":
+				return l <= r
+			case "==":
+				return l == r
+			case "!=":
+				return l != r
 			case "stupin":
 				return math.Pow(l, r)
 			}

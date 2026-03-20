@@ -28,6 +28,12 @@ const (
 	COLON
 	DOT
 
+	EQ
+	NOT_EQ
+	LT_EQ
+	GT_EQ
+	NOT
+
 	FUNCTIA
 	DRUKUVATY
 	NEKHAY
@@ -50,6 +56,7 @@ func (t TokenType) String() string {
 		"ILLEGAL", "EOF", "NEWLINE", "INDENT", "DEDENT",
 		"IDENT", "NUMBER", "STRING", "[", "]", ",",
 		"=", "+", "-", "*", "/", ">", "<", "(", ")", ":", ".",
+		"==", "!=", "<=", ">=", "!",
 		"functia", "drukuvaty", "nekhay", "vvid", "yaksho", "inackshe",
 		"korin", "loh10", "abs", "arksyn", "kosynus", "stupin", "vernuty", "poky", "vykorystaty",
 	}

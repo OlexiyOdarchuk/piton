@@ -61,7 +61,11 @@ const (
 
 var precedences = map[token.TokenType]int{
 	token.GT:       LESSGREATER,
+	token.GT_EQ:    LESSGREATER,
 	token.LT:       LESSGREATER,
+	token.LT_EQ:    LESSGREATER,
+	token.EQ:       LESSGREATER,
+	token.NOT_EQ:   LESSGREATER,
 	token.PLUS:     SUM,
 	token.MINUS:    SUM,
 	token.MULTIPTY: PRODUCT,
@@ -189,14 +193,10 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 
 		if opToken.Type == token.GT || opToken.Type == token.LT ||
 			opToken.Type == token.PLUS || opToken.Type == token.MINUS ||
-			opToken.Type == token.STUPIN {
-			p.pos++
-			rightExp := p.parseExpression(precedences[opToken.Type])
-			leftExp = ast.InfixExpr{Left: leftExp, Operator: opToken.Literal, Right: rightExp}
-			continue
-		}
-
-		if opToken.Type == token.MULTIPTY || opToken.Type == token.DIVIDE {
+			opToken.Type == token.STUPIN || opToken.Type == token.MULTIPTY ||
+			opToken.Type == token.DIVIDE || opToken.Type == token.EQ ||
+			opToken.Type == token.NOT_EQ || opToken.Type == token.LT_EQ ||
+			opToken.Type == token.GT_EQ {
 			p.pos++
 			rightExp := p.parseExpression(precedences[opToken.Type])
 			leftExp = ast.InfixExpr{Left: leftExp, Operator: opToken.Literal, Right: rightExp}
