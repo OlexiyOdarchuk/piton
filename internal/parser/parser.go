@@ -50,9 +50,9 @@ func (p *Parser) expect(t token.TokenType) token.Token {
 const (
 	_ int = iota
 	LOWEST
-	LESSGREATER
 	AND
 	OR
+	LESSGREATER
 	SUM
 	PRODUCT
 	STUPIN_PREC
