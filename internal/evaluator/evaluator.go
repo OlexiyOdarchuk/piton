@@ -507,6 +507,8 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			os.Exit(1)
 		}
 		switch n.Operator {
+		case "-":
+			return -right
 		case "korin":
 			return math.Sqrt(right)
 		case "loh10":

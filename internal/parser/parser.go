@@ -124,7 +124,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 		p.pos++
 		leftExp = p.parseExpression(LOWEST)
 		p.expect(token.RPAREN)
-	case token.KORIN, token.LOH10, token.ABS, token.ARKSYN, token.KOSYNUS, token.NOT:
+	case token.KORIN, token.LOH10, token.ABS, token.ARKSYN, token.KOSYNUS, token.NOT, token.MINUS:
 		p.pos++
 		right := p.parseExpression(PREFIX_PREC)
 		leftExp = ast.PrefixExpr{Operator: tok.Literal, Right: right}
