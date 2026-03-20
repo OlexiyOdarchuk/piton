@@ -418,6 +418,19 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		rightVal := ev.Eval(n.Right, env)
 
 		switch n.Operator {
+		case "ta", "abo":
+			l, ok1 := leftVal.(bool)
+			r, ok2 := rightVal.(bool)
+			if ok1 && ok2 {
+				switch n.Operator {
+				case "ta":
+					return l && r
+				case "abo":
+					return l || r
+				}
+			}
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Operator I dlya ne logiki? Ty serjozno? (Type mismatch))\n")
+			return nil
 		case "+":
 			if isStringLike(leftVal) || isStringLike(rightVal) {
 				return stringifyForConcat(leftVal) + stringifyForConcat(rightVal)
@@ -446,7 +459,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 
 			return leftVal.(float64) * rightVal.(float64)
 
-		case "-", "/", ">", "<", "stupin":
+		case "-", "/", ">", ">=", "<", "<=", "==", "!=", "stupin":
 			l, ok1 := leftVal.(float64)
 			r, ok2 := rightVal.(float64)
 			if !ok1 || !ok2 {
@@ -465,8 +478,16 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 				return l / r
 			case ">":
 				return l > r
+			case ">=":
+				return l >= r
 			case "<":
 				return l < r
+			case "<=":
+				return l <= r
+			case "==":
+				return l == r
+			case "!=":
+				return l != r
 			case "stupin":
 				return math.Pow(l, r)
 			}
@@ -475,6 +496,12 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		rightVal := ev.Eval(n.Right, env)
 		right, ok := rightVal.(float64)
 		if !ok {
+			rightBool, ok := rightVal.(bool)
+			if ok {
+				if n.Operator == "ne" {
+					return !rightBool
+				}
+			}
 			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Type mismatch)\n")
 			ev.Flush()
 			os.Exit(1)

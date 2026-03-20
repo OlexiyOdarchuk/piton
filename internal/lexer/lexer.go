@@ -66,12 +66,20 @@ func TokenizeLine(line string) []token.Token {
 	var tokens []token.Token
 	for i := 0; i < len(line); {
 		ch := rune(line[i])
+		makeTwoCharToken := func(char byte, next byte, twoCharType token.TokenType, singleCharType token.TokenType) {
+			i++
+			if i < len(line) && line[i] == next {
+				tokens = append(tokens, token.Token{Type: twoCharType, Literal: string(ch) + string(next)})
+				i++
+			} else {
+				tokens = append(tokens, token.Token{Type: singleCharType, Literal: string(ch)})
+			}
+		}
 		switch {
 		case ch == ' ' || ch == '\t' || ch == '\r':
 			i++
 		case ch == '=':
-			tokens = append(tokens, token.Token{Type: token.ASSIGN, Literal: "="})
-			i++
+			makeTwoCharToken('=', '=', token.EQ, token.ASSIGN)
 		case ch == '+':
 			tokens = append(tokens, token.Token{Type: token.PLUS, Literal: "+"})
 			i++
@@ -85,11 +93,9 @@ func TokenizeLine(line string) []token.Token {
 			tokens = append(tokens, token.Token{Type: token.DIVIDE, Literal: "/"})
 			i++
 		case ch == '>':
-			tokens = append(tokens, token.Token{Type: token.GT, Literal: ">"})
-			i++
+			makeTwoCharToken('>', '=', token.GT_EQ, token.GT)
 		case ch == '<':
-			tokens = append(tokens, token.Token{Type: token.LT, Literal: "<"})
-			i++
+			makeTwoCharToken('<', '=', token.LT_EQ, token.LT)
 		case ch == '(':
 			tokens = append(tokens, token.Token{Type: token.LPAREN, Literal: "("})
 			i++

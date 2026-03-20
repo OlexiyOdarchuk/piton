@@ -28,6 +28,14 @@ const (
 	COLON
 	DOT
 
+	EQ
+	NOT_EQ
+	LT_EQ
+	GT_EQ
+	NOT
+	AND
+	OR
+
 	FUNCTIA
 	DRUKUVATY
 	NEKHAY
@@ -50,6 +58,7 @@ func (t TokenType) String() string {
 		"ILLEGAL", "EOF", "NEWLINE", "INDENT", "DEDENT",
 		"IDENT", "NUMBER", "STRING", "[", "]", ",",
 		"=", "+", "-", "*", "/", ">", "<", "(", ")", ":", ".",
+		"==", "!=", "<=", ">=", "ne", "ta", "abo",
 		"functia", "drukuvaty", "nekhay", "vvid", "yaksho", "inackshe",
 		"korin", "loh10", "abs", "arksyn", "kosynus", "stupin", "vernuty", "poky", "vykorystaty",
 	}
@@ -97,6 +106,12 @@ func LookupIdent(ident string) TokenType {
 		return POKY
 	case "vykorystaty":
 		return VYKORYSTATY
+	case "ta":
+		return AND
+	case "abo":
+		return OR
+	case "ne":
+		return NOT
 	default:
 		return IDENT
 	}
