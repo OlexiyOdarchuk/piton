@@ -11,13 +11,14 @@ package main
 import (
 	"os"
 
+	"github.com/OlexiyOdarchuk/piton/internal/repl"
 	"github.com/OlexiyOdarchuk/piton/interpreter"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		os.Stdout.WriteString("Vikorystannya: piton <file.piton>\n")
-		os.Exit(1)
+	if len(os.Args) == 1 {
+		repl.Repl()
+		os.Exit(0)
 	}
 
 	content, err := os.ReadFile(os.Args[1])
