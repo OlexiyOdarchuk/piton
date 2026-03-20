@@ -33,6 +33,8 @@ const (
 	LT_EQ
 	GT_EQ
 	NOT
+	AND
+	OR
 
 	FUNCTIA
 	DRUKUVATY
@@ -56,7 +58,7 @@ func (t TokenType) String() string {
 		"ILLEGAL", "EOF", "NEWLINE", "INDENT", "DEDENT",
 		"IDENT", "NUMBER", "STRING", "[", "]", ",",
 		"=", "+", "-", "*", "/", ">", "<", "(", ")", ":", ".",
-		"==", "!=", "<=", ">=", "!",
+		"==", "!=", "<=", ">=", "ne", "ta", "abo",
 		"functia", "drukuvaty", "nekhay", "vvid", "yaksho", "inackshe",
 		"korin", "loh10", "abs", "arksyn", "kosynus", "stupin", "vernuty", "poky", "vykorystaty",
 	}
@@ -104,6 +106,12 @@ func LookupIdent(ident string) TokenType {
 		return POKY
 	case "vykorystaty":
 		return VYKORYSTATY
+	case "ta":
+		return AND
+	case "abo":
+		return OR
+	case "ne":
+		return NOT
 	default:
 		return IDENT
 	}

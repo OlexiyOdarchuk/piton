@@ -96,8 +96,6 @@ func TokenizeLine(line string) []token.Token {
 			makeTwoCharToken('>', '=', token.GT_EQ, token.GT)
 		case ch == '<':
 			makeTwoCharToken('<', '=', token.LT_EQ, token.LT)
-		case ch == '!':
-			makeTwoCharToken('!', '=', token.NOT_EQ, token.NOT)
 		case ch == '(':
 			tokens = append(tokens, token.Token{Type: token.LPAREN, Literal: "("})
 			i++

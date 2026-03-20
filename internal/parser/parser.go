@@ -51,6 +51,8 @@ const (
 	_ int = iota
 	LOWEST
 	LESSGREATER
+	AND
+	OR
 	SUM
 	PRODUCT
 	STUPIN_PREC
@@ -66,6 +68,8 @@ var precedences = map[token.TokenType]int{
 	token.LT_EQ:    LESSGREATER,
 	token.EQ:       LESSGREATER,
 	token.NOT_EQ:   LESSGREATER,
+	token.AND:      AND,
+	token.OR:       OR,
 	token.PLUS:     SUM,
 	token.MINUS:    SUM,
 	token.MULTIPTY: PRODUCT,
@@ -73,6 +77,7 @@ var precedences = map[token.TokenType]int{
 	token.STUPIN:   STUPIN_PREC,
 	token.LPAREN:   CALL,
 	token.DOT:      INDEX_PREC,
+	token.NOT:      INDEX_PREC,
 	token.LBRACKET: INDEX_PREC,
 }
 
@@ -119,7 +124,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 		p.pos++
 		leftExp = p.parseExpression(LOWEST)
 		p.expect(token.RPAREN)
-	case token.KORIN, token.LOH10, token.ABS, token.ARKSYN, token.KOSYNUS:
+	case token.KORIN, token.LOH10, token.ABS, token.ARKSYN, token.KOSYNUS, token.NOT:
 		p.pos++
 		right := p.parseExpression(PREFIX_PREC)
 		leftExp = ast.PrefixExpr{Operator: tok.Literal, Right: right}
@@ -196,7 +201,8 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 			opToken.Type == token.STUPIN || opToken.Type == token.MULTIPTY ||
 			opToken.Type == token.DIVIDE || opToken.Type == token.EQ ||
 			opToken.Type == token.NOT_EQ || opToken.Type == token.LT_EQ ||
-			opToken.Type == token.GT_EQ {
+			opToken.Type == token.GT_EQ || opToken.Type == token.AND ||
+			opToken.Type == token.OR {
 			p.pos++
 			rightExp := p.parseExpression(precedences[opToken.Type])
 			leftExp = ast.InfixExpr{Left: leftExp, Operator: opToken.Literal, Right: rightExp}
