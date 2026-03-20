@@ -113,6 +113,35 @@ func isStringLike(v interface{}) bool {
 	}
 }
 
+func printSpysok(ev *Evaluator, list []interface{}) interface{} {
+	ev.Out.WriteString("[")
+	for i, value := range list {
+		switch v := value.(type) {
+		case float64:
+			ev.Out.WriteString(strconv.FormatFloat(v, 'g', -1, 64))
+		case string:
+			ev.Out.WriteString("\"" + v + "\"")
+		case bool:
+			if v {
+				ev.Out.WriteString("true")
+			} else {
+				ev.Out.WriteString("false")
+			}
+		default:
+			if newList, ok := v.([]interface{}); ok {
+				printSpysok(ev, newList)
+			} else {
+				ev.Out.WriteString(value.(string))
+			}
+		}
+		if len(list)-1 > i {
+			ev.Out.WriteString(", ")
+		}
+	}
+	ev.Out.WriteString("]")
+	return nil
+}
+
 func (ev *Evaluator) Flush() error {
 	return ev.Out.Flush()
 }
@@ -140,28 +169,8 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 	case ast.PrintStmt:
 		val := ev.Eval(n.Expr, env)
 		if list, ok := val.([]interface{}); ok {
-			ev.Out.WriteString("[")
-			for i, value := range list {
-				switch v := value.(type) {
-				case float64:
-					ev.Out.WriteString(strconv.FormatFloat(v, 'g', -1, 64))
-				case string:
-					ev.Out.WriteString("\"" + v + "\"")
-				case bool:
-					if v {
-						ev.Out.WriteString("true")
-					} else {
-						ev.Out.WriteString("false")
-					}
-				default:
-					ev.Out.WriteString(value.(string))
-				}
-				if len(list)-1 > i {
-					ev.Out.WriteString(", ")
-				}
-			}
-			ev.Out.WriteString("]\n")
-			return nil
+			printSpysok(ev, list)
+			ev.Out.WriteString("\n")
 		}
 		if str, ok := val.(string); ok {
 			ev.Out.WriteString(str + "\n")
