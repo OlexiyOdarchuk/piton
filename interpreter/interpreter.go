@@ -7,14 +7,15 @@ import (
 	"github.com/OlexiyOdarchuk/piton/internal/evaluator"
 	"github.com/OlexiyOdarchuk/piton/internal/lexer"
 	"github.com/OlexiyOdarchuk/piton/internal/parser"
+	"github.com/OlexiyOdarchuk/piton/internal/visualizer"
 )
 
 // Run parses and executes the provided Piton source code.
 //
 // The execution flow follows these steps:
-//  1. Lexical analysis (tokenization).
-//  2. Parsing tokens into an Abstract Syntax Tree (AST).
-//  3. Evaluation of the AST nodes.
+//  1. Lexer: Breaks the raw string into a stream of tokens.
+//  2. Parser: Constructs an Abstract Syntax Tree (AST) from the tokens.
+//  3. Evaluator: Evaluation of the AST nodes.
 //
 // By default, it writes the program output to os.Stdout. You can provide
 // a custom io.Writer (e.g., bytes.Buffer or a file) as an optional argument.
@@ -35,4 +36,22 @@ func Run(code string, output ...io.Writer) error {
 	eval := evaluator.New(out)
 	eval.Eval(program, eval.Globals)
 	return eval.Flush()
+}
+
+// Visualize parses the provided Piton source code and generates a
+// graphical representation of the program's logic.
+//
+// The process follows a strict pipeline:
+//  1. Lexer: Breaks the raw string into a stream of tokens.
+//  2. Parser: Constructs an Abstract Syntax Tree (AST) from the tokens.
+//  3. Visualizer: Traverses the AST to produce a D2-based diagram
+//     following flowchart standards.
+//
+// Returns the rendered diagram as a byte slice SVG or an error
+// if lexical or structural analysis fails.
+func Visualize(code string) ([]byte, error) {
+	tokens := lexer.Tokenize(code)
+	p := parser.New(tokens)
+	program := p.ParseProgram()
+	return visualizer.Visualize(program)
 }

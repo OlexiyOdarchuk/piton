@@ -4,11 +4,12 @@ It was born from a typo and evolved into a fast, Go-based execution engine.
 
 Usage:
 
-	piton <filename.piton>
+	piton ["-draw" for flowchart] <filename.piton>
 */
 package main
 
 import (
+	"flag"
 	"os"
 
 	"github.com/OlexiyOdarchuk/piton/internal/repl"
@@ -20,15 +21,27 @@ func main() {
 		repl.Repl()
 		os.Exit(0)
 	}
+	filename := os.Args[len(os.Args)-1]
+	visualize := flag.Bool("draw", false, "Generate flowchart to program")
+	flag.Parse()
 
-	content, err := os.ReadFile(os.Args[1])
+	content, err := os.ReadFile(filename)
 	if err != nil {
 		os.Stdout.WriteString("Pomylka chitannya faily: " + err.Error() + "\n")
 		os.Exit(1)
 	}
 
-	if err := interpreter.Run(string(content)); err != nil {
+	if err = interpreter.Run(string(content)); err != nil {
 		os.Stderr.WriteString("Pomylka vikonannya: " + err.Error() + "\n")
 		os.Exit(1)
 	}
+
+	if *visualize {
+		diagram, err := interpreter.Visualize(string(content))
+		if err != nil {
+			os.Stderr.WriteString("Pomylka generacii shemu: " + err.Error() + "\n")
+		}
+		os.WriteFile(filename+".svg", diagram, 0600)
+	}
+
 }
