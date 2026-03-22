@@ -51,36 +51,46 @@ func Run(code string, output ...io.Writer) error {
 //  3. Visualizer: Traverses the AST to produce a D2-based diagram
 //     following flowchart standards.
 //
-// Returns the rendered diagram as a byte slice SVG or an error
-// if lexical or structural analysis fails.
-func Visualize(code string) ([]byte, error) {
+// Parameters:
+//   - targetFunction: If non-empty, generates a diagram ONLY for the specified function.
+//   - splitFiles: If true, generates a separate diagram for each function in the code.
+//
+// Returns a map where keys are suggested filenames (e.g., "main_myFunc.svg" or "flowchart.svg")
+// and values are the rendered SVG byte slices. Returns an error if lexical or structural analysis fails.
+func Visualize(code string, targetFunction string, splitFiles bool) (map[string][]byte, error) {
 	tokens := lexer.Tokenize(code)
 	p := parser.New(tokens)
 	program := p.ParseProgram()
-	return visualizer.Visualize(program)
+	return visualizer.Visualize(program, targetFunction, splitFiles)
 }
 
 // VisualizeProject parses the provided entry Piton file and automatically resolves
 // all its dependencies ('vykorystaty' statements) to generate a comprehensive
 // flowchart of the entire project's logic.
 //
-// Unlike Visualize, which only processes a single isolated file, this function
+// Unlike Visualize, which only processes a single isolated file or string, this function
 // delegates the creation of a unified Abstract Syntax Tree (AST) to the interpreter.
 //
 // The process follows a strict pipeline:
 //  1. Interpreter: Reads the entry file, recursively resolves and parses all
 //     imported modules, and merges their functions into a single "Super AST".
-//  2. Visualizer: Traverses this complete AST to produce a unified D2-based
-//     diagram following flowchart standards.
+//  2. Visualizer: Traverses this complete AST to produce unified or split D2-based
+//     diagrams following flowchart standards.
 //
-// Returns the rendered diagram as a byte slice SVG or an error if
-// file reading, parsing, or import resolution fails.
-func VisualizeProject(entryFilePath string) ([]byte, error) {
+// Parameters:
+//   - entryFilePath: The path to the main Piton file.
+//   - targetFunction: If non-empty, generates a diagram ONLY for the specified function.
+//   - splitFiles: If true, generates a separate diagram for each function across all modules.
+//
+// Returns a map where keys are suggested filenames (e.g., "math_average.svg")
+// and values are the rendered SVG byte slices. Returns an error if file reading,
+// parsing, or import resolution fails.
+func VisualizeProject(entryFilePath, targetFunction string, splitFiles bool) (map[string][]byte, error) {
 	superProgram, err := parseProject(entryFilePath)
 	if err != nil {
 		return nil, err
 	}
-	return visualizer.Visualize(superProgram)
+	return visualizer.Visualize(superProgram, targetFunction, splitFiles)
 }
 
 func parseProject(entryFilePath string) (ast.Program, error) {
