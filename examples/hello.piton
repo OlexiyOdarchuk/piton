@@ -1,2 +1,6 @@
 functia Hello(name):
     drukuvaty "Hello " + name + "!"
+
+functia Hi(name):
+    drukuvaty "Hi " + name + "!"
+
