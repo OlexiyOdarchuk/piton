@@ -221,7 +221,7 @@ func formatExpr(expr ast.Expr) string {
 	}
 }
 
-func Visualize(program ast.Program) ([]byte, error) {
+func renderSingleAST(program ast.Program) ([]byte, error) {
 	v := &Visualizer{}
 
 	v.sb.WriteString("direction: down\n")
@@ -247,7 +247,14 @@ func Visualize(program ast.Program) ([]byte, error) {
 	}
 
 	if len(globalStmts) > 0 {
-		v.sb.WriteString("Головна програма: {\n  style.fill: transparent\n")
+		v.sb.WriteString("Головна програма: {\n")
+		v.sb.WriteString("  style: {\n")
+		v.sb.WriteString("    fill: \"#e8f4f8\"\n")
+		v.sb.WriteString("    stroke: \"#0284c7\"\n")
+		v.sb.WriteString("    stroke-width: 2\n")
+		v.sb.WriteString("  }\n")
+		v.sb.WriteString("  label: \"Головна програма\"\n\n")
+
 		startID := v.nextID()
 		v.writeNode(startID, "Початок", "terminal")
 		endID := v.nextID()
@@ -298,8 +305,48 @@ func Visualize(program ast.Program) ([]byte, error) {
 
 	diagram, _, err := d2lib.Compile(ctx, v.sb.String(), compileOpts, renderOpts)
 	if err != nil {
-		return nil, errors.New("D2 compile error: " + err.Error() + "\nGenerated code:\n" + v.sb.String())
+		return nil, errors.New("Pomylka compilacii D2: " + err.Error() + "\nZgenerovanyi kod:\n" + v.sb.String())
 	}
 
 	return d2svg.Render(diagram, renderOpts)
+}
+
+func Visualize(program ast.Program, targetFunction string, splitFiles bool) (map[string][]byte, error) {
+	results := make(map[string][]byte)
+
+	if targetFunction != "" {
+		for _, stmt := range program.Statements {
+			if f, ok := stmt.(ast.FuncDefStmt); ok && f.Name == targetFunction {
+				miniProg := ast.Program{Statements: []ast.Stmt{f}}
+				svg, err := renderSingleAST(miniProg)
+				if err != nil {
+					return nil, err
+				}
+				results[f.Name+".svg"] = svg
+				return results, nil
+			}
+		}
+		return nil, errors.New("Functiyu " + targetFunction + " ne znaydeno")
+	}
+	if splitFiles {
+		for _, stmt := range program.Statements {
+			if f, ok := stmt.(ast.FuncDefStmt); ok {
+				miniProg := ast.Program{Statements: []ast.Stmt{f}}
+				svg, err := renderSingleAST(miniProg)
+				if err != nil {
+					return nil, err
+				}
+				fileName := f.Module + "_" + f.Name + ".svg"
+				results[fileName] = svg
+			}
+		}
+		return results, nil
+	}
+
+	svg, err := renderSingleAST(program)
+	if err != nil {
+		return nil, err
+	}
+	results["flowchart.svg"] = svg
+	return results, nil
 }
