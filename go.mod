@@ -2,6 +2,8 @@ module github.com/OlexiyOdarchuk/piton
 
 go 1.26.1
 
+require oss.terrastruct.com/d2 v0.7.1
+
 require (
 	github.com/PuerkitoBio/goquery v1.10.0 // indirect
 	github.com/alecthomas/chroma/v2 v2.14.0 // indirect
@@ -21,6 +23,5 @@ require (
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	oss.terrastruct.com/d2 v0.7.1 // indirect
 	oss.terrastruct.com/util-go v0.0.0-20250213174338-243d8661088a // indirect
 )
