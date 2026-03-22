@@ -18,6 +18,7 @@ type FuncDefStmt struct {
 	Name   string
 	Params []string
 	Body   []Stmt
+	Module string
 }
 
 func (FuncDefStmt) stmt() {}

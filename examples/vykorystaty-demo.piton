@@ -1,3 +1,8 @@
 vykorystaty hello
 
-hello.Hello("world")
+functia Hi():
+    drukuvaty "this is MY HI FUNCTIA"
+    hello.Hello("world")
+    hello.Hi("world!")
+
+Hi()
