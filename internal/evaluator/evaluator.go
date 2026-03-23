@@ -203,7 +203,16 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		return nil
 	case ast.AssignStmt:
 		val := ev.Eval(n.Expr, env)
-		env.Set(n.Name, val)
+		switch target := n.Target.(type) {
+		case ast.Identifier:
+			env.Set(target.Value, val)
+		case ast.IndexExpr:
+			if list, idx, ok := ev.evalIndexTarget(target.Left, target.Index, env); ok {
+				list[idx] = val
+			}
+		default:
+			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Prysvojuvaty mozna tilky zminni chy elementy spyska!)\n")
+		}
 		return nil
 	case ast.ExprStmt:
 		return ev.Eval(n.Expr, env)
@@ -548,27 +557,10 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		}
 		return elements
 	case ast.IndexExpr:
-		leftVal := ev.Eval(n.Left, env)
-		idxVal := ev.Eval(n.Index, env)
-
-		list, okList := leftVal.([]interface{})
-		index, okIdx := idxVal.(float64)
-
-		if !okList {
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Mozhna tykaty palcem tilky v spysok!)\n")
-			return nil
+		if list, idx, ok := ev.evalIndexTarget(n.Left, n.Index, env); ok {
+			return list[idx]
 		}
-		if !okIdx {
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index maye buty chyslom!)\n")
-			return nil
-		}
-
-		i := int(index)
-		if i < 0 || i >= len(list) {
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Takogo elementa nemaye, ty khochesh zanadto bahato!)\n")
-			return nil
-		}
-		return list[i]
+		return nil
 	case ast.SpysokExpr:
 		listVal := ev.Eval(n.Left, env)
 		arr, ok := listVal.([]interface{})
@@ -673,4 +665,28 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		return nil
 	}
 	return nil
+}
+
+func (ev *Evaluator) evalIndexTarget(left ast.Expr, index ast.Expr, env *Environment) ([]interface{}, int, bool) {
+	listVal := ev.Eval(left, env)
+	list, okList := listVal.([]interface{})
+	if !okList {
+		ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Mozhna tykaty palcem tilky v spysok!)\n")
+		return nil, 0, false
+	}
+
+	idxVal := ev.Eval(index, env)
+	indexFloat, okIdx := idxVal.(float64)
+	if !okIdx {
+		ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index maye buty chyslom!)\n")
+		return nil, 0, false
+	}
+
+	i := int(indexFloat)
+	if i < 0 || i >= len(list) {
+		ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Takogo elementa nemaye, ty khochesh zanadto bahato!)\n")
+		return nil, 0, false
+	}
+
+	return list, i, true
 }
