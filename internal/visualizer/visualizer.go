@@ -97,7 +97,7 @@ func (v *Visualizer) walkStmt(stmt ast.Stmt, prevNodes []NodePtr, endNode string
 
 	case ast.AssignStmt:
 		id := v.nextID()
-		v.writeNode(id, s.Name+" = "+formatExpr(s.Expr), "process")
+		v.writeNode(id, formatExpr(s.Target)+" = "+formatExpr(s.Expr), "process")
 		v.link(prevNodes, id)
 		return []NodePtr{{ID: id}}
 

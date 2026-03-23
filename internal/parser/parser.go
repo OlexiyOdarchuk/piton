@@ -313,17 +313,13 @@ func (p *Parser) parseStatement() ast.Stmt {
 		body := p.parseBlock()
 		return ast.PokyStmt{Condition: condition, Body: body}
 	case token.IDENT:
-		saved := p.pos
-		p.pos++
-		if p.current().Type == token.ASSIGN {
-			name := p.tokens[saved].Literal
-			p.pos++
-			exp := p.parseExpression(LOWEST)
-			p.consumeNewlineOrEOF()
-			return ast.AssignStmt{Name: name, Expr: exp}
-		}
-		p.pos = saved
 		exp := p.parseExpression(LOWEST)
+		if p.current().Type == token.ASSIGN {
+			p.pos++
+			value := p.parseExpression(LOWEST)
+			p.consumeNewlineOrEOF()
+			return ast.AssignStmt{Target: exp, Expr: value}
+		}
 		p.consumeNewlineOrEOF()
 		return ast.ExprStmt{Expr: exp}
 	case token.VYKORYSTATY:

@@ -39,8 +39,8 @@ type InputStmt struct{ Name string }
 func (InputStmt) stmt() {}
 
 type AssignStmt struct {
-	Name string
-	Expr Expr
+	Target Expr
+	Expr   Expr
 }
 
 func (AssignStmt) stmt() {}
