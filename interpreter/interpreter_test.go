@@ -276,7 +276,6 @@ func TestHelperProcess(t *testing.T) {
 	}
 
 	Run(code)
-	os.Exit(0)
 }
 
 func TestVypadkovo(t *testing.T) {

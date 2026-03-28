@@ -54,7 +54,7 @@ func Repl() {
 			inputStr = fullCode
 		}
 		tokens := lexer.Tokenize(inputStr)
-		p := parser.New(tokens)
+		p := parser.New(tokens, os.Stdout)
 		program := p.ParseProgram()
 
 		eval.Eval(program, eval.Globals)

@@ -336,6 +336,9 @@ func Visualize(program ast.Program, targetFunction string, splitFiles bool) (map
 				if err != nil {
 					return nil, err
 				}
+				if f.Module == "" {
+					f.Module = "main"
+				}
 				fileName := f.Module + "_" + f.Name + ".svg"
 				results[fileName] = svg
 			}
