@@ -34,7 +34,7 @@ func Run(code string, output ...io.Writer) error {
 	}
 
 	tokens := lexer.Tokenize(code)
-	p := parser.New(tokens)
+	p := parser.New(tokens, out)
 	program := p.ParseProgram()
 
 	eval := evaluator.New(out)
@@ -57,9 +57,15 @@ func Run(code string, output ...io.Writer) error {
 //
 // Returns a map where keys are suggested filenames (e.g., "main_myFunc.svg" or "flowchart.svg")
 // and values are the rendered SVG byte slices. Returns an error if lexical or structural analysis fails.
-func Visualize(code string, targetFunction string, splitFiles bool) (map[string][]byte, error) {
+func Visualize(code string, targetFunction string, splitFiles bool, output ...io.Writer) (map[string][]byte, error) {
+	var out io.Writer = os.Stdout
+
+	if len(output) > 0 && output[0] != nil {
+		out = output[0]
+	}
+
 	tokens := lexer.Tokenize(code)
-	p := parser.New(tokens)
+	p := parser.New(tokens, out)
 	program := p.ParseProgram()
 	return visualizer.Visualize(program, targetFunction, splitFiles)
 }
@@ -85,19 +91,25 @@ func Visualize(code string, targetFunction string, splitFiles bool) (map[string]
 // Returns a map where keys are suggested filenames (e.g., "math_average.svg")
 // and values are the rendered SVG byte slices. Returns an error if file reading,
 // parsing, or import resolution fails.
-func VisualizeProject(entryFilePath, targetFunction string, splitFiles bool) (map[string][]byte, error) {
-	superProgram, err := parseProject(entryFilePath)
+func VisualizeProject(entryFilePath, targetFunction string, splitFiles bool, output ...io.Writer) (map[string][]byte, error) {
+	var out io.Writer = os.Stdout
+
+	if len(output) > 0 && output[0] != nil {
+		out = output[0]
+	}
+
+	superProgram, err := parseProject(entryFilePath, out)
 	if err != nil {
 		return nil, err
 	}
 	return visualizer.Visualize(superProgram, targetFunction, splitFiles)
 }
 
-func parseProject(entryFilePath string) (ast.Program, error) {
+func parseProject(entryFilePath string, out io.Writer) (ast.Program, error) {
 	visited := make(map[string]bool)
 	superProgram := ast.Program{Statements: []ast.Stmt{}}
 
-	err := resolveImports(entryFilePath, &superProgram, visited, true)
+	err := resolveImports(entryFilePath, &superProgram, visited, true, out)
 	if err != nil {
 		return ast.Program{}, err
 	}
@@ -105,7 +117,7 @@ func parseProject(entryFilePath string) (ast.Program, error) {
 	return superProgram, nil
 }
 
-func resolveImports(filePath string, superProgram *ast.Program, visited map[string]bool, isMain bool) error {
+func resolveImports(filePath string, superProgram *ast.Program, visited map[string]bool, isMain bool, out io.Writer) error {
 	absPath, err := filepath.Abs(filePath)
 	if err != nil {
 		return errors.New("Pomylka shlyahu " + filePath + ": " + err.Error())
@@ -127,7 +139,7 @@ func resolveImports(filePath string, superProgram *ast.Program, visited map[stri
 	}
 
 	tokens := lexer.Tokenize(string(codeBytes))
-	p := parser.New(tokens)
+	p := parser.New(tokens, out)
 	program := p.ParseProgram()
 
 	baseDir := filepath.Dir(absPath)
@@ -137,7 +149,7 @@ func resolveImports(filePath string, superProgram *ast.Program, visited map[stri
 		case ast.ImportStmt:
 			if strLit, ok := s.Filename.(ast.StringLiteral); ok {
 				importedFilePath := filepath.Join(baseDir, strLit.Value+".piton")
-				err := resolveImports(importedFilePath, superProgram, visited, false)
+				err := resolveImports(importedFilePath, superProgram, visited, false, out)
 				if err != nil {
 					return err
 				}

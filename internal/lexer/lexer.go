@@ -69,10 +69,10 @@ func TokenizeLine(line string) []token.Token {
 		makeTwoCharToken := func(char byte, next byte, twoCharType token.TokenType, singleCharType token.TokenType) {
 			i++
 			if i < len(line) && line[i] == next {
-				tokens = append(tokens, token.Token{Type: twoCharType, Literal: string(ch) + string(next)})
+				tokens = append(tokens, token.Token{Type: twoCharType, Literal: string(char) + string(next)})
 				i++
 			} else {
-				tokens = append(tokens, token.Token{Type: singleCharType, Literal: string(ch)})
+				tokens = append(tokens, token.Token{Type: singleCharType, Literal: string(char)})
 			}
 		}
 		switch {

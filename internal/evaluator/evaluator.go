@@ -369,7 +369,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		if !ok {
 			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Unknown function: " + n.Name + ")\n")
 			ev.Flush()
-			os.Exit(1)
+			return nil
 		}
 		fnDef := fnDefIf.(ast.FuncDefStmt)
 		if len(n.Args) != len(fnDef.Params) {
@@ -458,7 +458,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			if !ok1 || !ok2 {
 				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Type mismatch)\n")
 				ev.Flush()
-				os.Exit(1)
+				return nil
 			}
 			return l + r
 
@@ -522,7 +522,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			}
 			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Type mismatch)\n")
 			ev.Flush()
-			os.Exit(1)
+			return nil
 		}
 		switch n.Operator {
 		case "-":
@@ -547,7 +547,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		if !ok {
 			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Undefined variable: " + n.Value + ")\n")
 			ev.Flush()
-			os.Exit(1)
+			return nil
 		}
 		return v
 	case ast.SpysokLiteral:
@@ -635,7 +635,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			return nil
 		}
 		tokens := lexer.Tokenize(string(content))
-		p := parser.New(tokens)
+		p := parser.New(tokens, ev.Out)
 		importedProgram := p.ParseProgram()
 
 		moduleEnv := NewEnv(ev.Globals)

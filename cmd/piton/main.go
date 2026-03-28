@@ -19,7 +19,7 @@ import (
 func main() {
 	if len(os.Args) == 1 {
 		repl.Repl()
-		os.Exit(0)
+		return
 	}
 	filename := os.Args[len(os.Args)-1]
 	visualize := flag.Bool("draw", false, "Generate flowchart to file")
@@ -31,7 +31,7 @@ func main() {
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		os.Stdout.WriteString("Pomylka chitannya faily: " + err.Error() + "\n")
-		os.Exit(1)
+		return
 	}
 
 	if *visualize {
@@ -62,6 +62,6 @@ func main() {
 
 	} else if err = interpreter.Run(string(content)); err != nil {
 		os.Stderr.WriteString("Pomylka vikonannya: " + err.Error() + "\n")
-		os.Exit(1)
+		return
 	}
 }

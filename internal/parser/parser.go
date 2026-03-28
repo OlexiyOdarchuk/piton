@@ -1,25 +1,28 @@
 package parser
 
 import (
-	"os"
+	"bufio"
+	"io"
 	"strconv"
 
 	"github.com/OlexiyOdarchuk/piton/internal/ast"
 	"github.com/OlexiyOdarchuk/piton/internal/token"
 )
 
-func SyntaxError(line int) {
-	os.Stdout.WriteString("Ryadok [" + strconv.Itoa(line) + "]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye!\n")
-	os.Exit(1)
-}
-
 type Parser struct {
 	tokens []token.Token
 	pos    int
+	out    bufio.Writer
 }
 
-func New(tokens []token.Token) *Parser {
-	return &Parser{tokens: tokens}
+func (p *Parser) syntaxError(line int) {
+	p.out.Write([]byte("Ryadok [" + strconv.Itoa(line) + "]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye!\n"))
+	p.out.Flush()
+	p.pos++
+}
+
+func New(tokens []token.Token, output io.Writer) *Parser {
+	return &Parser{tokens: tokens, out: *bufio.NewWriter(output)}
 }
 
 func (p *Parser) current() token.Token {
@@ -43,7 +46,7 @@ func (p *Parser) expect(t token.TokenType) token.Token {
 		p.pos++
 		return tok
 	}
-	SyntaxError(p.current().Line)
+	p.syntaxError(p.current().Line)
 	return token.Token{}
 }
 
@@ -129,7 +132,8 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 		right := p.parseExpression(PREFIX_PREC)
 		leftExp = ast.PrefixExpr{Operator: tok.Literal, Right: right}
 	default:
-		SyntaxError(tok.Line)
+		p.syntaxError(tok.Line)
+		return nil
 	}
 
 	for p.current().Type != token.NEWLINE && p.current().Type != token.EOF && precedence < p.peekPrecedence() {
@@ -160,7 +164,8 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 			case ast.SelectorExpr:
 				leftExp = ast.CallExpr{Receiver: fn.Left, Name: fn.Right, Args: args}
 			default:
-				SyntaxError(opToken.Line)
+				p.syntaxError(opToken.Line)
+				return nil
 			}
 			continue
 		}
@@ -219,7 +224,8 @@ func (p *Parser) consumeNewlineOrEOF() {
 		p.pos++
 	} else if p.current().Type == token.EOF {
 	} else {
-		SyntaxError(p.current().Line)
+		p.syntaxError(p.current().Line)
+		return
 	}
 }
 
@@ -331,12 +337,13 @@ func (p *Parser) parseStatement() ast.Stmt {
 		case token.IDENT:
 			filename = p.expect(token.IDENT).Literal
 		default:
-			SyntaxError(p.current().Line)
+			p.syntaxError(p.current().Line)
+			return nil
 		}
 		p.consumeNewlineOrEOF()
 		return ast.ImportStmt{Filename: ast.StringLiteral{Value: filename}}
 	default:
-		SyntaxError(p.current().Line)
+		p.syntaxError(p.current().Line)
 		return nil
 	}
 }
