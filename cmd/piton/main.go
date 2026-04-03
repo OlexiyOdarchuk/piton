@@ -30,38 +30,38 @@ func main() {
 
 	content, err := os.ReadFile(filename)
 	if err != nil {
-		os.Stdout.WriteString("Pomylka chitannya faily: " + err.Error() + "\n")
+		_, _ = os.Stdout.WriteString("Pomylka chitannya faily: " + err.Error() + "\n")
 		return
 	}
 
 	if *visualize {
 		diagrams, err := interpreter.Visualize(string(content), *targetFunc, *splitMode)
 		if err != nil {
-			os.Stderr.WriteString("Pomylka generacii shemu: " + err.Error() + "\n")
+			_, _ = os.Stderr.WriteString("Pomylka generacii shemu: " + err.Error() + "\n")
 		}
 		for chart_filename, data := range diagrams {
 			if chart_filename == "flowchart.svg" {
 				chart_filename = filename + ".svg"
 			}
-			os.WriteFile(chart_filename, data, 0644)
-			os.Stdout.WriteString("Zberezheno: " + chart_filename + "\n")
+			_ = os.WriteFile(chart_filename, data, 0644)
+			_, _ = os.Stdout.WriteString("Zberezheno: " + chart_filename + "\n")
 		}
 
 	} else if *visualizeProject {
 		diagrams, err := interpreter.VisualizeProject(filename, *targetFunc, *splitMode)
 		if err != nil {
-			os.Stderr.WriteString("Pomylka generacii shemu: " + err.Error() + "\n")
+			_, _ = os.Stderr.WriteString("Pomylka generacii shemu: " + err.Error() + "\n")
 		}
 		for chart_filename, data := range diagrams {
 			if chart_filename == "flowchart.svg" {
 				chart_filename = filename + ".svg"
 			}
-			os.WriteFile(chart_filename, data, 0644)
-			os.Stdout.WriteString("Zberezheno: " + chart_filename + "\n")
+			_ = os.WriteFile(chart_filename, data, 0644)
+			_, _ = os.Stdout.WriteString("Zberezheno: " + chart_filename + "\n")
 		}
 
 	} else if err = interpreter.Run(string(content)); err != nil {
-		os.Stderr.WriteString("Pomylka vikonannya: " + err.Error() + "\n")
+		_, _ = os.Stderr.WriteString("Pomylka vikonannya: " + err.Error() + "\n")
 		return
 	}
 }

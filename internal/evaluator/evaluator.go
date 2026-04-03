@@ -114,31 +114,31 @@ func isStringLike(v interface{}) bool {
 }
 
 func printSpysok(ev *Evaluator, list []interface{}) interface{} {
-	ev.Out.WriteString("[")
+	_, _ = ev.Out.WriteString("[")
 	for i, value := range list {
 		switch v := value.(type) {
 		case float64:
-			ev.Out.WriteString(strconv.FormatFloat(v, 'g', -1, 64))
+			_, _ = ev.Out.WriteString(strconv.FormatFloat(v, 'g', -1, 64))
 		case string:
-			ev.Out.WriteString("\"" + v + "\"")
+			_, _ = ev.Out.WriteString("\"" + v + "\"")
 		case bool:
 			if v {
-				ev.Out.WriteString("true")
+				_, _ = ev.Out.WriteString("true")
 			} else {
-				ev.Out.WriteString("false")
+				_, _ = ev.Out.WriteString("false")
 			}
 		default:
 			if newList, ok := v.([]interface{}); ok {
 				printSpysok(ev, newList)
 			} else {
-				ev.Out.WriteString(value.(string))
+				_, _ = ev.Out.WriteString(value.(string))
 			}
 		}
 		if len(list)-1 > i {
-			ev.Out.WriteString(", ")
+			_, _ = ev.Out.WriteString(", ")
 		}
 	}
-	ev.Out.WriteString("]")
+	_, _ = ev.Out.WriteString("]")
 	return nil
 }
 
@@ -146,7 +146,7 @@ func (ev *Evaluator) Flush() error {
 	return ev.Out.Flush()
 }
 
-type ReturnValue struct{ Value interface{} }
+type ReturnValue struct{ Value any }
 
 func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 	switch n := node.(type) {
@@ -170,20 +170,20 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		val := ev.Eval(n.Expr, env)
 		if list, ok := val.([]interface{}); ok {
 			printSpysok(ev, list)
-			ev.Out.WriteString("\n")
+			_, _ = ev.Out.WriteString("\n")
 		}
 		if str, ok := val.(string); ok {
-			ev.Out.WriteString(str + "\n")
+			_, _ = ev.Out.WriteString(str + "\n")
 		} else if num, ok := val.(float64); ok {
-			ev.Out.WriteString(strconv.FormatFloat(num, 'f', -1, 64) + "\n")
+			_, _ = ev.Out.WriteString(strconv.FormatFloat(num, 'f', -1, 64) + "\n")
 		} else if b, ok := val.(bool); ok {
 			if b {
-				ev.Out.WriteString("true\n")
+				_, _ = ev.Out.WriteString("true\n")
 			} else {
-				ev.Out.WriteString("false\n")
+				_, _ = ev.Out.WriteString("false\n")
 			}
 		}
-		ev.Flush()
+		_ = ev.Flush()
 		return nil
 
 	case ast.VarDecStmt:
@@ -191,8 +191,8 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		env.Set(n.Name, val)
 		return nil
 	case ast.InputStmt:
-		ev.Out.WriteString("Vvedit znachennya: ")
-		ev.Flush()
+		_, _ = ev.Out.WriteString("Vvedit znachennya: ")
+		_ = ev.Flush()
 
 		reader := bufio.NewReader(os.Stdin)
 		inputStr, _ := reader.ReadString('\n')
@@ -211,7 +211,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 				list[idx] = val
 			}
 		default:
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Prysvojuvaty mozna tilky zminni chy elementy spyska!)\n")
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Prysvojuvaty mozna tilky zminni chy elementy spyska!)\n")
 		}
 		return nil
 	case ast.ExprStmt:
@@ -238,7 +238,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			}
 			if n.Name == "zatrymka" {
 				if len(n.Args) != 1 {
-					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (zatrymka() ochikuye rivno 1 arhument!)\n")
+					_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (zatrymka() ochikuye rivno 1 arhument!)\n")
 					return nil
 				}
 
@@ -248,19 +248,19 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 					time.Sleep(d)
 					return nil
 				}
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (zatrymka() ochikue chislo v secundah!)\n")
+				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (zatrymka() ochikue chislo v secundah!)\n")
 				return nil
 			}
 			if n.Name == "chas" {
 				if len(n.Args) != 0 {
-					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (chas() ne ochikuye arhumentiv!)\n")
+					_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (chas() ne ochikuye arhumentiv!)\n")
 					return nil
 				}
 				return float64(time.Now().UnixMicro()) / 1_000_000.0
 			}
 			if n.Name == "dovzhyna" {
 				if len(n.Args) != 1 {
-					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() ochikuye rivno 1 arhument!)\n")
+					_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() ochikuye rivno 1 arhument!)\n")
 					return nil
 				}
 
@@ -270,12 +270,12 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 					return float64(len(list))
 				}
 
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() pratsyuye tilky zi spyskamy!)\n")
+				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() pratsyuye tilky zi spyskamy!)\n")
 				return nil
 			}
 			if n.Name == "vypadkovo" {
 				if len(n.Args) != 2 && len(n.Args) != 1 {
-					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vypadkovo() ochikuye 1 abo 2 arhumentu!)\n")
+					_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vypadkovo() ochikuye 1 abo 2 arhumentu!)\n")
 					return nil
 				}
 
@@ -309,7 +309,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 						maximum := int(end)
 
 						if maximum <= minimum {
-							ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vypadkovo() minimum ne mozhe buty > za maximum!)\n")
+							_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vypadkovo() minimum ne mozhe buty > za maximum!)\n")
 							return nil
 						}
 
@@ -319,7 +319,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			}
 			if n.Name == "kolor" {
 				if len(n.Args) != 2 {
-					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (kolor() ochikuye rivno 2 argumenty!)\n")
+					_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (kolor() ochikuye rivno 2 argumenty!)\n")
 					return nil
 				}
 				colorArg := ev.Eval(n.Args[0], env)
@@ -327,7 +327,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 
 				colorName, ok := colorArg.(string)
 				if !ok {
-					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (kolor() nazva kolory ma buty ryadkom!)\n")
+					_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (kolor() nazva kolory ma buty ryadkom!)\n")
 					return nil
 				}
 
@@ -335,7 +335,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			}
 			if n.Name == "dodaty" {
 				if len(n.Args) != 2 {
-					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dodaty() ochikuye rivno 2 arhumentu!)\n")
+					_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dodaty() ochikuye rivno 2 arhumentu!)\n")
 					return nil
 				}
 
@@ -349,7 +349,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 					return append(arr, element)
 				}
 
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dodaty() pratsyuye tilky zi spyskamy!)\n")
+				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dodaty() pratsyuye tilky zi spyskamy!)\n")
 				return nil
 			}
 		}
@@ -359,7 +359,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			receiverVal := ev.Eval(n.Receiver, env)
 			moduleEnv, ok := receiverVal.(*Environment)
 			if !ok {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (nema takogo modula!)\n")
+				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (nema takogo modula!)\n")
 				return nil
 			}
 			targetEnv = moduleEnv
@@ -367,13 +367,13 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 
 		fnDefIf, ok := targetEnv.Get(n.Name)
 		if !ok {
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Unknown function: " + n.Name + ")\n")
-			ev.Flush()
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Unknown function: " + n.Name + ")\n")
+			_ = ev.Flush()
 			return nil
 		}
 		fnDef := fnDefIf.(ast.FuncDefStmt)
 		if len(n.Args) != len(fnDef.Params) {
-			ev.Out.WriteString("Ryadok [-]: A tak yak ty pyshesh, tak buty ne maye! (funkciya " + fnDef.Name + " ochikuye " + strconv.Itoa(len(fnDef.Params)) + " argumentiv, a ty dav " + strconv.Itoa(len(n.Args)) + ")\n")
+			_, _ = ev.Out.WriteString("Ryadok [-]: A tak yak ty pyshesh, tak buty ne maye! (funkciya " + fnDef.Name + " ochikuye " + strconv.Itoa(len(fnDef.Params)) + " argumentiv, a ty dav " + strconv.Itoa(len(n.Args)) + ")\n")
 			return nil
 		}
 		fnEnv := NewEnv(ev.Globals)
@@ -447,7 +447,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 					return l || r
 				}
 			}
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Operator I dlya ne logiki? Ty serjozno? (Type mismatch))\n")
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Operator I dlya ne logiki? Ty serjozno? (Type mismatch))\n")
 			return nil
 		case "+":
 			if isStringLike(leftVal) || isStringLike(rightVal) {
@@ -456,8 +456,8 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			l, ok1 := leftVal.(float64)
 			r, ok2 := rightVal.(float64)
 			if !ok1 || !ok2 {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Type mismatch)\n")
-				ev.Flush()
+				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Type mismatch)\n")
+				_ = ev.Flush()
 				return nil
 			}
 			return l + r
@@ -481,7 +481,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			l, ok1 := leftVal.(float64)
 			r, ok2 := rightVal.(float64)
 			if !ok1 || !ok2 {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Matematyka dlya ryadkiv? Ty serjozno? (Type mismatch))\n")
+				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Matematyka dlya ryadkiv? Ty serjozno? (Type mismatch))\n")
 				return nil
 			}
 
@@ -490,7 +490,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 				return l - r
 			case "/":
 				if r == 0 {
-					ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Na nul dilyty ne mozhna, navit u Pitoni!)\n")
+					_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Na nul dilyty ne mozhna, navit u Pitoni!)\n")
 					return nil
 				}
 				return l / r
@@ -520,8 +520,8 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 					return !rightBool
 				}
 			}
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Type mismatch)\n")
-			ev.Flush()
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Type mismatch)\n")
+			_ = ev.Flush()
 			return nil
 		}
 		switch n.Operator {
@@ -545,8 +545,8 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 	case ast.Identifier:
 		v, ok := env.Get(n.Value)
 		if !ok {
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Undefined variable: " + n.Value + ")\n")
-			ev.Flush()
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Undefined variable: " + n.Value + ")\n")
+			_ = ev.Flush()
 			return nil
 		}
 		return v
@@ -565,7 +565,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		listVal := ev.Eval(n.Left, env)
 		arr, ok := listVal.([]interface{})
 		if !ok {
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Spysok-zriz pratsyuye tilky zi spyskamy!)\n")
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Spysok-zriz pratsyuye tilky zi spyskamy!)\n")
 			return nil
 		}
 
@@ -573,11 +573,11 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			val := ev.Eval(expr, env)
 			number, ok := val.(float64)
 			if !ok {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index zrizu maye buty chislom!)\n")
+				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index zrizu maye buty chislom!)\n")
 				return 0, false
 			}
 			if math.Trunc(number) != number {
-				ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index zrizu maye buty cilum chislom!)\n")
+				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index zrizu maye buty cilum chislom!)\n")
 				return 0, false
 			}
 			return int(number), true
@@ -602,7 +602,7 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		}
 
 		if start < 0 || end < 0 || start > len(arr) || end > len(arr) || start > end {
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Indexu zrizu poza zrizom!)\n")
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Indexu zrizu poza zrizom!)\n")
 			return nil
 		}
 
@@ -626,12 +626,12 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		filenameVal := ev.Eval(n.Filename, env)
 		filename, ok := filenameVal.(string)
 		if !ok {
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vykorystaty ochikue nazvy faila!)\n")
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (vykorystaty ochikue nazvy faila!)\n")
 			return nil
 		}
 		content, err := os.ReadFile(filename + ".piton")
 		if err != nil {
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (pomylka chitannya faila!)\n")
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (pomylka chitannya faila!)\n")
 			return nil
 		}
 		tokens := lexer.Tokenize(string(content))
@@ -658,10 +658,10 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			if ok {
 				return val
 			}
-			ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (u modula nema takogo polya!)\n")
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (u modula nema takogo polya!)\n")
 			return nil
 		}
-		ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (nema takogo modula!)\n")
+		_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (nema takogo modula!)\n")
 		return nil
 	}
 	return nil
@@ -671,20 +671,20 @@ func (ev *Evaluator) evalIndexTarget(left ast.Expr, index ast.Expr, env *Environ
 	listVal := ev.Eval(left, env)
 	list, okList := listVal.([]interface{})
 	if !okList {
-		ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Mozhna tykaty palcem tilky v spysok!)\n")
+		_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Mozhna tykaty palcem tilky v spysok!)\n")
 		return nil, 0, false
 	}
 
 	idxVal := ev.Eval(index, env)
 	indexFloat, okIdx := idxVal.(float64)
 	if !okIdx {
-		ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index maye buty chyslom!)\n")
+		_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index maye buty chyslom!)\n")
 		return nil, 0, false
 	}
 
 	i := int(indexFloat)
 	if i < 0 || i >= len(list) {
-		ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Takogo elementa nemaye, ty khochesh zanadto bahato!)\n")
+		_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Takogo elementa nemaye, ty khochesh zanadto bahato!)\n")
 		return nil, 0, false
 	}
 

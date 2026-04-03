@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	os.Setenv("NO_COLOR", "1")
+	_ = os.Setenv("NO_COLOR", "1")
 }
 
 func runWithBuffer(t *testing.T, code string) string {
@@ -94,12 +94,12 @@ func TestKolorFunction(t *testing.T) {
 	prev := os.Getenv("NO_COLOR")
 	t.Cleanup(func() {
 		if prev == "" {
-			os.Unsetenv("NO_COLOR")
+			_ = os.Unsetenv("NO_COLOR")
 			return
 		}
-		os.Setenv("NO_COLOR", prev)
+		_ = os.Setenv("NO_COLOR", prev)
 	})
-	os.Unsetenv("NO_COLOR")
+	_ = os.Unsetenv("NO_COLOR")
 
 	code := "drukuvaty kolor(\"red\", \"alert\")"
 	want := "\x1b[31malert\x1b[0m\n"
@@ -163,8 +163,8 @@ func TestRunLogicBranches(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		value int
 		want  string
+		value int
 	}{
 		{name: "primary", value: 5, want: "first\n"},
 		{name: "elseif", value: 2, want: "second\n"},
@@ -275,7 +275,7 @@ func TestHelperProcess(t *testing.T) {
 		t.Fatalf("missing code argument")
 	}
 
-	Run(code)
+	_ = Run(code)
 }
 
 func TestVypadkovo(t *testing.T) {

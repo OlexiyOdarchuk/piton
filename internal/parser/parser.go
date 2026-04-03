@@ -16,8 +16,8 @@ type Parser struct {
 }
 
 func (p *Parser) syntaxError(line int) {
-	p.out.Write([]byte("Ryadok [" + strconv.Itoa(line) + "]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye!\n"))
-	p.out.Flush()
+	_, _ = p.out.Write([]byte("Ryadok [" + strconv.Itoa(line) + "]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye!\n"))
+	_ = p.out.Flush()
 	p.pos++
 }
 
@@ -32,13 +32,13 @@ func (p *Parser) current() token.Token {
 	return p.tokens[p.pos]
 }
 
-func (p *Parser) consume(t token.TokenType) bool {
-	if p.current().Type == t {
-		p.pos++
-		return true
-	}
-	return false
-}
+// func (p *Parser) consume(t token.TokenType) bool {
+// 	if p.current().Type == t {
+// 		p.pos++
+// 		return true
+// 	}
+// 	return false
+// }
 
 func (p *Parser) expect(t token.TokenType) token.Token {
 	if p.current().Type == t {

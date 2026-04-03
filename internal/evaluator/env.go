@@ -1,8 +1,8 @@
 package evaluator
 
 type Environment struct {
-	store map[string]interface{}
 	outer *Environment
+	store map[string]any
 }
 
 func NewEnv(outer *Environment) *Environment {

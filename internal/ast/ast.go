@@ -68,23 +68,23 @@ type ExprStmt struct{ Expr Expr }
 func (ExprStmt) stmt() {}
 
 type PokyStmt struct {
-	Condition Expr
 	Body      []Stmt
+	Condition Expr
 }
 
 func (PokyStmt) stmt() {}
 
 type CallExpr struct {
-	Receiver Expr
 	Name     string
+	Receiver Expr
 	Args     []Expr
 }
 
 func (CallExpr) expr() {}
 
 type InfixExpr struct {
-	Left     Expr
 	Operator string
+	Left     Expr
 	Right    Expr
 }
 
@@ -109,9 +109,16 @@ type Identifier struct{ Value string }
 
 func (Identifier) expr() {}
 
-type SpysokLiteral struct{ Elements []Expr }
+// TODO: hashmap
+type HashPair struct {
+	Key   uint64
+	Value any
+}
+type Bucket struct{ HashList []HashPair }
 
-func (SpysokLiteral) expr() {}
+type SlovnykLiteral struct{ BucketList []Bucket }
+
+func (SlovnykLiteral) expr() {}
 
 type IndexExpr struct {
 	Left  Expr
@@ -119,6 +126,10 @@ type IndexExpr struct {
 }
 
 func (IndexExpr) expr() {}
+
+type SpysokLiteral struct{ Elements []Expr }
+
+func (SpysokLiteral) expr() {}
 
 type SpysokExpr struct {
 	Left  Expr
@@ -133,8 +144,8 @@ type ImportStmt struct{ Filename Expr }
 func (ImportStmt) stmt() {}
 
 type SelectorExpr struct {
-	Left  Expr
 	Right string
+	Left  Expr
 }
 
 func (SelectorExpr) expr() {}
