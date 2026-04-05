@@ -1,6 +1,6 @@
 drukuvaty kolor("bright_yellow", "--- Dodaty Demo ---")
 
-nekhay colors = ["чорний", "блакитний", "зелений", "жовтий"]
+colors = ["чорний", "блакитний", "зелений", "жовтий"]
 
 drukuvaty kolor("cyan", "Початковий список кольорів:")
 drukuvaty colors
@@ -8,7 +8,7 @@ drukuvaty colors
 drukuvaty "Додаємо один новий колір (додає елемент):"
 drukuvaty dodaty(colors, "помаранчевий")
 
-nekhay palette = dodaty(colors, ["білий", "сірий", "рожевий"])
+palette = dodaty(colors, ["білий", "сірий", "рожевий"])
 drukuvaty kolor("green", "Після додавання ще кількох кольорів:")
 drukuvaty palette
 
@@ -16,7 +16,7 @@ drukuvaty "Список з позиції 2 і до кінця (list[i:]):"
 drukuvaty palette[2:]
 
 drukuvaty kolor("magenta", "Go-way видалення другого елементу (spysok[:i] + spysok[i+1:]):")
-nekhay withoutSecond = dodaty(palette[:1], palette[2:])
+withoutSecond = dodaty(palette[:1], palette[2:])
 drukuvaty withoutSecond
 
 drukuvaty kolor("red", "Увага: кольори автоматично деактивуються, якщо змінна оточення NO_COLOR задана.")

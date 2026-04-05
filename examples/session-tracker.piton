@@ -1,12 +1,12 @@
-nekhay sessions = [35, 40, 28, 55, 47, 33]
-nekhay target = 40
+sessions = [35, 40, 28, 55, 47, 33]
+target = 40
 
 functia main():
     drukuvaty "\n=== Трекер навчальних сесій ==="
-    nekhay total = 0
-    nekhay i = 0
+    total = 0
+    i = 0
     poky i < dovzhyna(sessions):
-        nekhay duration = sessions[i]
+        duration = sessions[i]
         total = total + duration
         drukuvaty "\nСесія"
         drukuvaty i + 1
@@ -20,8 +20,8 @@ functia main():
         drukuvaty categorize(duration, target)
         i = i + 1
 
-    nekhay averageDuration = average(sessions)
-    nekhay swing = deviation(sessions)
+    averageDuration = average(sessions)
+    swing = deviation(sessions)
     drukuvaty "\nСередня тривалість:"
     drukuvaty averageDuration
     yaksho averageDuration > target:
@@ -45,17 +45,17 @@ functia heatMeter(duration):
     vernuty korin (duration stupin 2)
 
 functia average(values):
-    nekhay total = 0
-    nekhay idx = 0
+    total = 0
+    idx = 0
     poky idx < dovzhyna(values):
         total = total + values[idx]
         idx = idx + 1
     vernuty total / dovzhyna(values)
 
 functia deviation(values):
-    nekhay highest = values[0]
-    nekhay lowest = values[0]
-    nekhay idx = 1
+    highest = values[0]
+    lowest = values[0]
+    idx = 1
     poky idx < dovzhyna(values):
         yaksho values[idx] > highest:
             highest = values[idx]

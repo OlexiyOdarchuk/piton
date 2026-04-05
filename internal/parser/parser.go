@@ -267,13 +267,6 @@ func (p *Parser) parseStatement() ast.Stmt {
 		exp := p.parseExpression(LOWEST)
 		p.consumeNewlineOrEOF()
 		return ast.PrintStmt{Expr: exp}
-	case token.NEKHAY:
-		p.pos++
-		name := p.expect(token.IDENT).Literal
-		p.expect(token.ASSIGN)
-		exp := p.parseExpression(LOWEST)
-		p.consumeNewlineOrEOF()
-		return ast.VarDecStmt{Name: name, Expr: exp}
 	case token.VVID:
 		p.pos++
 		name := p.expect(token.IDENT).Literal

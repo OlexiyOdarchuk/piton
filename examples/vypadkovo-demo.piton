@@ -1,6 +1,6 @@
 drukuvaty "--- Vypadkovo Demo ---"
 
-nekhay fruits = ["яблуко", "груша", "слива"]
+fruits = ["яблуко", "груша", "слива"]
 
 drukuvaty "Випадковий елемент зі списку:"
 drukuvaty vypadkovo(fruits)

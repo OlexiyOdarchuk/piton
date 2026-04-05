@@ -1,5 +1,5 @@
-nekhay start = chas()
-nekhay i = 0
+start = chas()
+i = 0
 poky i < 10000000:
     drukuvaty i
     i = i+1

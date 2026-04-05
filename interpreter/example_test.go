@@ -8,13 +8,13 @@ import (
 
 func ExampleRun() {
 	code := `
-nekhay values = [1, 4, 10, 25, 0.5, 100]
-nekhay terms = ["korin", "stupin", "loh10", "abs", "dovzhyna"]
-nekhay currentValue = 0
+values = [1, 4, 10, 25, 0.5, 100]
+terms = ["korin", "stupin", "loh10", "abs", "dovzhyna"]
+currentValue = 0
 
 functia main():
     drukuvaty "\n--- Piton Showcase ---"
-    nekhay i = 0
+    i = 0
     poky i < dovzhyna(values):
         currentValue = values[i]
         drukuvaty "\nЧисло:"
@@ -31,7 +31,7 @@ functia main():
         drukuvaty "    Модуль від (число - 5):"
         drukuvaty abs (currentValue - 5)
         yaksho currentValue > 0:
-            nekhay wave = korin currentValue / (currentValue + 1)
+            wave = korin currentValue / (currentValue + 1)
             drukuvaty "    Kosynus:"
             drukuvaty kosynus currentValue
             drukuvaty "    Arksyn (wave):"
@@ -43,13 +43,13 @@ functia main():
         i = i + 1
 
     drukuvaty "\nСписок операцій:"
-    nekhay cursor = 0
+    cursor = 0
     poky cursor < dovzhyna(terms):
         drukuvaty terms[cursor]
         cursor = cursor + 1
 
-    nekhay first = values[0]
-    nekhay last = values[dovzhyna(values) - 1]
+    first = values[0]
+    last = values[dovzhyna(values) - 1]
     drukuvaty "\nКраї діапазону:"
     drukuvaty first
     drukuvaty last
@@ -67,14 +67,14 @@ functia main():
     formatValue(first, "Початкове значення:")
 
     drukuvaty "\nФункція пошуку чисел Фібоначі (рекурсія):"
-    nekhay i = 0
+    i = 0
     poky i < 10:
         drukuvaty fib(i)
         i = i + 1
 
 	drukuvaty "\nОб'єднання списків"
-	nekhay list1 = [1,2,3]
-	nekhay list2 = [4,5,6]
+	list1 = [1,2,3]
+	list2 = [4,5,6]
 	drukuvaty "\nПерший список:"
 	drukuvaty list1
 	drukuvaty "\nДругий список:"
@@ -83,8 +83,8 @@ functia main():
 	drukuvaty dodaty(list1, list2)
 
 	drukuvaty "\nДодати елемент до списку"
-	nekhay list = [1,2,3]
-	nekhay newElement = "hello"
+	list = [1,2,3]
+	newElement = "hello"
 	drukuvaty "\nПочатковий список:"
     drukuvaty list
     drukuvaty "\nНовий елемент:"
@@ -93,14 +93,14 @@ functia main():
 	drukuvaty dodaty(list, newElement)
 
 	drukuvaty "\nВидалення елементу з індексом 1"
-	nekhay base = [1,2,3]
+	base = [1,2,3]
 	drukuvaty "Початковий список:"
 	drukuvaty base
-	nekhay trimmed = dodaty(base[:1], base[2:])
+	trimmed = dodaty(base[:1], base[2:])
 	drukuvaty "\nСписок без елементу з індексом 1:"
 	drukuvaty trimmed
 
-	nekhay fruits = ["яблуко", "груша", "слива"]
+	fruits = ["яблуко", "груша", "слива"]
 	drukuvaty "\nВипадковий фрукт:"
 	drukuvaty vypadkovo(fruits)
 	drukuvaty "\nВипадкове число <5:"
@@ -119,15 +119,15 @@ functia klasify():
         vernuty "Компактне"
 
 functia average():
-    nekhay sum = 0
-    nekhay i = 0
+    sum = 0
+    i = 0
     poky i < dovzhyna(values):
         sum = sum + values[i]
         i = i + 1
     vernuty sum / dovzhyna(values)
 
 functia memo():
-    nekhay summaryIndex = dovzhyna(terms) - 2
+    summaryIndex = dovzhyna(terms) - 2
     vernuty korin (summaryIndex stupin 2) + loh10 (dovzhyna(values)) + abs (0 - currentValue)
 
 functia formatValue(value, label):
@@ -329,9 +329,9 @@ functia fib(n):
 
 func ExampleRun_chasZaokruhlennya() {
 	code := `
-nekhay start = chas()
+start = chas()
 zatrymka(0)
-nekhay later = chas()
+later = chas()
 drukuvaty "chas ok"
 drukuvaty zaokruhlennya(123.4567, 2)
 drukuvaty "zatrymka ok"
