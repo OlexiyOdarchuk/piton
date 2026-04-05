@@ -129,7 +129,7 @@ func TestStringConcatMix(t *testing.T) {
 }
 
 func TestChas(t *testing.T) {
-	code := "nekhay a = chas()\nnekhay b = chas()\ndrukuvaty b - a"
+	code := "a = chas()\nb = chas()\ndrukuvaty b - a"
 	val := parseFloatOutput(t, runWithBuffer(t, code))
 	if val < 0 {
 		t.Fatalf("chronological imbalance: %v", val)
@@ -137,7 +137,7 @@ func TestChas(t *testing.T) {
 }
 
 func TestZatrymka(t *testing.T) {
-	code := "nekhay start = chas()\nzatrymka(0.05)\nnekhay elapsed = chas() - start\ndrukuvaty elapsed"
+	code := "start = chas()\nzatrymka(0.05)\nelapsed = chas() - start\ndrukuvaty elapsed"
 	val := parseFloatOutput(t, runWithBuffer(t, code))
 	if val < 0.04 {
 		t.Fatalf("expected at least ~0.05s delay, got %v", val)
@@ -153,7 +153,7 @@ func TestVykorystatyImports(t *testing.T) {
 }
 
 func TestRunLogicBranches(t *testing.T) {
-	const codeTemplate = "nekhay a = %d\n" +
+	const codeTemplate = "a = %d\n" +
 		"yaksho a > 3:\n" +
 		"    drukuvaty \"first\"\n" +
 		"inackshe yaksho a < 3:\n" +
@@ -185,9 +185,9 @@ func TestRunLogicBranches(t *testing.T) {
 func TestRunFunctionsAndScoping(t *testing.T) {
 	code := "" +
 		"functia add():\n" +
-		"    nekhay inner = 3\n" +
+		"    inner = 3\n" +
 		"    vernuty inner + outer\n" +
-		"nekhay outer = 7\n" +
+		"outer = 7\n" +
 		"drukuvaty add()\n" +
 		"drukuvaty outer\n"
 
@@ -200,7 +200,7 @@ func TestRunFunctionsAndScoping(t *testing.T) {
 func TestRunFunctionArguments(t *testing.T) {
 	code := "" +
 		"functia repeat(label, count):\n" +
-		"    nekhay i = 0\n" +
+		"    i = 0\n" +
 		"    poky i < count:\n" +
 		"        drukuvaty label\n" +
 		"        i = i + 1\n" +
@@ -245,7 +245,7 @@ func TestRunComplexExpression(t *testing.T) {
 }
 
 func TestRunSyntaxErrorMessage(t *testing.T) {
-	code := "nekhay x =\n"
+	code := "x =\n"
 	cmd := exec.Command(os.Args[0], "-test.run=TestHelperProcess", "--", code)
 	cmd.Env = append(os.Environ(), "GO_WANT_HELPER_PROCESS=1")
 	out, err := cmd.CombinedOutput()
@@ -306,7 +306,7 @@ func TestVypadkovo(t *testing.T) {
 		},
 		{
 			name: "list argument",
-			code: "nekhay options = [10, 20, 30]\ndrukuvaty vypadkovo(options)",
+			code: "options = [10, 20, 30]\ndrukuvaty vypadkovo(options)",
 			check: func(t *testing.T, got string) {
 				val := parseFloatOutput(t, got)
 				valid := map[float64]bool{10: true, 20: true, 30: true}
@@ -348,37 +348,37 @@ func TestSpysok(t *testing.T) {
 		},
 		{
 			"Print spysok from variable",
-			"nekhay a = [14,5,1,\"Hello\",2]\ndrukuvaty a",
+			"a = [14,5,1,\"Hello\",2]\ndrukuvaty a",
 			"[14, 5, 1, \"Hello\", 2]\n",
 		},
 		{
 			"All spysok",
-			"nekhay s = [10, 20, 30, 40]\ndrukuvaty dovzhyna(s)\ndrukuvaty s[dovzhyna(s) - 1]",
+			"s = [10, 20, 30, 40]\ndrukuvaty dovzhyna(s)\ndrukuvaty s[dovzhyna(s) - 1]",
 			"4\n40\n",
 		},
 		{
 			"Spysok range",
-			"nekhay s = [1, 2, 3, 4]\ndrukuvaty s[1:3]",
+			"s = [1, 2, 3, 4]\ndrukuvaty s[1:3]",
 			"[2, 3]\n",
 		},
 		{
 			"Spysok to end",
-			"nekhay s = [1, 2, 3, 4]\ndrukuvaty s[2:]",
+			"s = [1, 2, 3, 4]\ndrukuvaty s[2:]",
 			"[3, 4]\n",
 		},
 		{
 			"Spysok from start",
-			"nekhay s = [1, 2, 3, 4]\ndrukuvaty s[:2]",
+			"s = [1, 2, 3, 4]\ndrukuvaty s[:2]",
 			"[1, 2]\n",
 		},
 		{
 			"Full spysok",
-			"nekhay s = [1, 2, 3, 4]\ndrukuvaty s[:]",
+			"s = [1, 2, 3, 4]\ndrukuvaty s[:]",
 			"[1, 2, 3, 4]\n",
 		},
 		{
 			"Go-style removal",
-			"nekhay s = [1, 2, 3, 4]\nnekhay i = 2\nnekhay trimmed = dodaty(s[:i], s[i + 1:])\ndrukuvaty trimmed",
+			"s = [1, 2, 3, 4]\ni = 2\ntrimmed = dodaty(s[:i], s[i + 1:])\ndrukuvaty trimmed",
 			"[1, 2, 4]\n",
 		},
 	}
@@ -399,7 +399,7 @@ func TestPoky(t *testing.T) {
 	}{
 		{
 			"Print full script with cycle",
-			"nekhay i = 0\nnekhay s = [1, 2, 3]\npoky i < dovzhyna(s):\n	drukuvaty s[i]\n	i = i + 1",
+			"i = 0\ns = [1, 2, 3]\npoky i < dovzhyna(s):\n	drukuvaty s[i]\n	i = i + 1",
 			"1\n2\n3\n",
 		},
 	}
@@ -420,12 +420,12 @@ func TestDodaty(t *testing.T) {
 	}{
 		{
 			"Dodaty one element",
-			"nekhay a = [1,2,3]\na = dodaty(a,4)\ndrukuvaty a",
+			"a = [1,2,3]\na = dodaty(a,4)\ndrukuvaty a",
 			"[1, 2, 3, 4]\n",
 		},
 		{
 			"Dodaty list to list",
-			"nekhay a = [1,2,3]\nnekhay b = [4, 5, 6]\na = dodaty(a,b)\ndrukuvaty a",
+			"a = [1,2,3]\nb = [4, 5, 6]\na = dodaty(a,b)\ndrukuvaty a",
 			"[1, 2, 3, 4, 5, 6]\n",
 		},
 	}

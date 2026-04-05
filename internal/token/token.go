@@ -38,7 +38,6 @@ const (
 
 	FUNCTIA
 	DRUKUVATY
-	NEKHAY
 	VVID
 	YAKSHO
 	INACKSHE
@@ -59,7 +58,7 @@ func (t TokenType) String() string {
 		"IDENT", "NUMBER", "STRING", "[", "]", ",",
 		"=", "+", "-", "*", "/", ">", "<", "(", ")", ":", ".",
 		"==", "!=", "<=", ">=", "ne", "ta", "abo",
-		"functia", "drukuvaty", "nekhay", "vvid", "yaksho", "inackshe",
+		"functia", "drukuvaty", "vvid", "yaksho", "inackshe",
 		"korin", "loh10", "abs", "arksyn", "kosynus", "stupin", "vernuty", "poky", "vykorystaty",
 	}
 	if t >= 0 && int(t) < len(names) {
@@ -80,8 +79,6 @@ func LookupIdent(ident string) TokenType {
 		return FUNCTIA
 	case "drukuvaty":
 		return DRUKUVATY
-	case "nekhay":
-		return NEKHAY
 	case "vvid":
 		return VVID
 	case "yaksho":
