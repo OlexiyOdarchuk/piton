@@ -13,7 +13,8 @@ import (
 	"os"
 
 	"github.com/OlexiyOdarchuk/piton/internal/repl"
-	"github.com/OlexiyOdarchuk/piton/interpreter"
+	"github.com/OlexiyOdarchuk/piton/pkg/interpreter"
+	"github.com/OlexiyOdarchuk/piton/pkg/visualizer"
 )
 
 func main() {
@@ -35,7 +36,7 @@ func main() {
 	}
 
 	if *visualize {
-		diagrams, err := interpreter.Visualize(string(content), *targetFunc, *splitMode)
+		diagrams, err := visualizer.Visualize(string(content), *targetFunc, *splitMode)
 		if err != nil {
 			_, _ = os.Stderr.WriteString("Pomylka generacii shemu: " + err.Error() + "\n")
 		}
@@ -48,7 +49,7 @@ func main() {
 		}
 
 	} else if *visualizeProject {
-		diagrams, err := interpreter.VisualizeProject(filename, *targetFunc, *splitMode)
+		diagrams, err := visualizer.VisualizeProject(filename, *targetFunc, *splitMode)
 		if err != nil {
 			_, _ = os.Stderr.WriteString("Pomylka generacii shemu: " + err.Error() + "\n")
 		}
