@@ -106,6 +106,27 @@ func (p *Parser) parseSpysokLiteral() ast.Expr {
 	return ast.SpysokLiteral{Elements: elements}
 }
 
+func (p *Parser) parseSlovnykLiteral() ast.Expr {
+	p.pos++
+	var pairs []ast.SlovnykPair
+	if p.current().Type != token.RFBRACKET {
+		key := p.parseExpression(LOWEST)
+		p.expect(token.COLON)
+		value := p.parseExpression(LOWEST)
+		pairs = append(pairs, ast.SlovnykPair{Key: key, Value: value})
+
+		for p.current().Type == token.COMMA {
+			p.pos++
+			key = p.parseExpression(LOWEST)
+			p.expect(token.COLON)
+			value = p.parseExpression(LOWEST)
+			pairs = append(pairs, ast.SlovnykPair{Key: key, Value: value})
+		}
+	}
+	p.expect(token.RFBRACKET)
+	return ast.SlovnykLiteral{Pairs: pairs}
+}
+
 func (p *Parser) parseExpression(precedence int) ast.Expr {
 	var leftExp ast.Expr
 	tok := p.current()
@@ -123,6 +144,8 @@ func (p *Parser) parseExpression(precedence int) ast.Expr {
 		leftExp = ast.StringLiteral{Value: tok.Literal}
 	case token.LBRACKET:
 		leftExp = p.parseSpysokLiteral()
+	case token.LFBRACKET:
+		leftExp = p.parseSlovnykLiteral()
 	case token.LPAREN:
 		p.pos++
 		leftExp = p.parseExpression(LOWEST)

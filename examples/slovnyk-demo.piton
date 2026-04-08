@@ -1,0 +1,21 @@
+profil = {"imya": "Mavka", "vik": 128, "mista": ["Lviv", "Kyiv"], "nalashtuvannya": {"tema": "svitla", "spovishchennya": true}}
+
+drukuvaty "--- Slovnyk Demo ---"
+drukuvaty "Pochatkovyi profil:"
+drukuvaty profil
+
+drukuvaty "Imya korystuvacha:"
+drukuvaty profil["imya"]
+
+drukuvaty "Pershe misto zi spysku:"
+drukuvaty profil["mista"][0]
+
+profil["rol"] = "moderator"
+profil["vik"] = profil["vik"] + 1
+profil["nalashtuvannya"]["tema"] = "temna"
+
+drukuvaty "Onovlenyi profil:"
+drukuvaty profil
+
+drukuvaty "Kilkist poliv u slovnyku:"
+drukuvaty dovzhyna(profil)

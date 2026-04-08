@@ -8,11 +8,13 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/OlexiyOdarchuk/piton/internal/ast"
+	"github.com/OlexiyOdarchuk/piton/internal/hashmap"
 	"github.com/OlexiyOdarchuk/piton/internal/lexer"
 	"github.com/OlexiyOdarchuk/piton/internal/parser"
 )
@@ -113,33 +115,54 @@ func isStringLike(v interface{}) bool {
 	}
 }
 
-func printSpysok(ev *Evaluator, list []interface{}) interface{} {
-	_, _ = ev.Out.WriteString("[")
-	for i, value := range list {
-		switch v := value.(type) {
-		case float64:
-			_, _ = ev.Out.WriteString(strconv.FormatFloat(v, 'g', -1, 64))
-		case string:
-			_, _ = ev.Out.WriteString("\"" + v + "\"")
-		case bool:
-			if v {
-				_, _ = ev.Out.WriteString("true")
-			} else {
-				_, _ = ev.Out.WriteString("false")
-			}
-		default:
-			if newList, ok := v.([]interface{}); ok {
-				printSpysok(ev, newList)
-			} else {
-				_, _ = ev.Out.WriteString(value.(string))
-			}
+func formatCollectionValue(value interface{}) string {
+	switch v := value.(type) {
+	case nil:
+		return "nil"
+	case float64:
+		return strconv.FormatFloat(v, 'g', -1, 64)
+	case string:
+		return "\"" + v + "\""
+	case bool:
+		return strconv.FormatBool(v)
+	case []interface{}:
+		parts := make([]string, len(v))
+		for i, elem := range v {
+			parts[i] = formatCollectionValue(elem)
 		}
-		if len(list)-1 > i {
-			_, _ = ev.Out.WriteString(", ")
+		return "[" + strings.Join(parts, ", ") + "]"
+	case *hashmap.Map:
+		entries := v.Entries()
+		sort.Slice(entries, func(i, j int) bool {
+			return entries[i].Key < entries[j].Key
+		})
+		parts := make([]string, len(entries))
+		for i, entry := range entries {
+			parts[i] = "\"" + entry.Key + "\": " + formatCollectionValue(entry.Value)
 		}
+		return "{" + strings.Join(parts, ", ") + "}"
+	default:
+		return ""
 	}
-	_, _ = ev.Out.WriteString("]")
-	return nil
+}
+
+func writePrintedValue(ev *Evaluator, value interface{}) {
+	switch v := value.(type) {
+	case []interface{}:
+		_, _ = ev.Out.WriteString(formatCollectionValue(v))
+	case *hashmap.Map:
+		_, _ = ev.Out.WriteString(formatCollectionValue(v))
+	case string:
+		_, _ = ev.Out.WriteString(v)
+	case float64:
+		_, _ = ev.Out.WriteString(strconv.FormatFloat(v, 'f', -1, 64))
+	case bool:
+		_, _ = ev.Out.WriteString(strconv.FormatBool(v))
+	case nil:
+		_, _ = ev.Out.WriteString("nil")
+	default:
+		_, _ = ev.Out.WriteString(formatCollectionValue(v))
+	}
 }
 
 func (ev *Evaluator) Flush() error {
@@ -168,21 +191,12 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		return nil
 	case ast.PrintStmt:
 		val := ev.Eval(n.Expr, env)
-		if list, ok := val.([]interface{}); ok {
-			printSpysok(ev, list)
-			_, _ = ev.Out.WriteString("\n")
+		if val == nil {
+			_ = ev.Flush()
+			return nil
 		}
-		if str, ok := val.(string); ok {
-			_, _ = ev.Out.WriteString(str + "\n")
-		} else if num, ok := val.(float64); ok {
-			_, _ = ev.Out.WriteString(strconv.FormatFloat(num, 'f', -1, 64) + "\n")
-		} else if b, ok := val.(bool); ok {
-			if b {
-				_, _ = ev.Out.WriteString("true\n")
-			} else {
-				_, _ = ev.Out.WriteString("false\n")
-			}
-		}
+		writePrintedValue(ev, val)
+		_, _ = ev.Out.WriteString("\n")
 		_ = ev.Flush()
 		return nil
 
@@ -207,11 +221,9 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 		case ast.Identifier:
 			env.Set(target.Value, val)
 		case ast.IndexExpr:
-			if list, idx, ok := ev.evalIndexTarget(target.Left, target.Index, env); ok {
-				list[idx] = val
-			}
+			ev.assignIndexTarget(target.Left, target.Index, val, env)
 		default:
-			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Prysvojuvaty mozna tilky zminni chy elementy spyska!)\n")
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Prysvojuvaty mozna tilky zminni chy elementy spyska/slovnyka!)\n")
 		}
 		return nil
 	case ast.ExprStmt:
@@ -270,7 +282,11 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 					return float64(len(list))
 				}
 
-				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() pratsyuye tilky zi spyskamy!)\n")
+				if slovnyk, ok := val.(*hashmap.Map); ok {
+					return float64(slovnyk.Len())
+				}
+
+				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dovzhyna() pratsyuye tilky zi spyskamy ta slovnykamy!)\n")
 				return nil
 			}
 			if n.Name == "vypadkovo" {
@@ -556,11 +572,20 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 			elements[i] = ev.Eval(expr, env)
 		}
 		return elements
-	case ast.IndexExpr:
-		if list, idx, ok := ev.evalIndexTarget(n.Left, n.Index, env); ok {
-			return list[idx]
+	case ast.SlovnykLiteral:
+		slovnyk := hashmap.New()
+		for _, pair := range n.Pairs {
+			keyVal := ev.Eval(pair.Key, env)
+			key, ok := keyVal.(string)
+			if !ok {
+				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Klyuchi slovnyka mayut buty ryadkamy!)\n")
+				return nil
+			}
+			slovnyk.Set(key, ev.Eval(pair.Value, env))
 		}
-		return nil
+		return slovnyk
+	case ast.IndexExpr:
+		return ev.evalIndexExpr(n.Left, n.Index, env)
 	case ast.SpysokExpr:
 		listVal := ev.Eval(n.Left, env)
 		arr, ok := listVal.([]interface{})
@@ -667,26 +692,82 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 	return nil
 }
 
-func (ev *Evaluator) evalIndexTarget(left ast.Expr, index ast.Expr, env *Environment) ([]interface{}, int, bool) {
-	listVal := ev.Eval(left, env)
-	list, okList := listVal.([]interface{})
-	if !okList {
-		_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Mozhna tykaty palcem tilky v spysok!)\n")
-		return nil, 0, false
+func (ev *Evaluator) evalIndexExpr(left ast.Expr, index ast.Expr, env *Environment) interface{} {
+	leftVal := ev.Eval(left, env)
+	switch collection := leftVal.(type) {
+	case []interface{}:
+		idx, ok := ev.evalListIndex(index, env, len(collection))
+		if !ok {
+			return nil
+		}
+		return collection[idx]
+	case *hashmap.Map:
+		key, ok := ev.evalHashKey(index, env)
+		if !ok {
+			return nil
+		}
+		value, exists := collection.Get(key)
+		if !exists {
+			_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (U slovnyku nema takogo klyucha!)\n")
+			return nil
+		}
+		return value
+	default:
+		_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Mozhna tykaty palcem tilky v spysok abo slovnyk!)\n")
+		return nil
 	}
+}
 
+func (ev *Evaluator) assignIndexTarget(left ast.Expr, index ast.Expr, value interface{}, env *Environment) bool {
+	leftVal := ev.Eval(left, env)
+	switch collection := leftVal.(type) {
+	case []interface{}:
+		idx, ok := ev.evalListIndex(index, env, len(collection))
+		if !ok {
+			return false
+		}
+		collection[idx] = value
+		return true
+	case *hashmap.Map:
+		key, ok := ev.evalHashKey(index, env)
+		if !ok {
+			return false
+		}
+		collection.Set(key, value)
+		return true
+	default:
+		_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Mozhna prysvoyuvaty tilky elementam spyska abo slovnyka!)\n")
+		return false
+	}
+}
+
+func (ev *Evaluator) evalListIndex(index ast.Expr, env *Environment, length int) (int, bool) {
 	idxVal := ev.Eval(index, env)
 	indexFloat, okIdx := idxVal.(float64)
 	if !okIdx {
 		_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index maye buty chyslom!)\n")
-		return nil, 0, false
+		return 0, false
+	}
+	if math.Trunc(indexFloat) != indexFloat {
+		_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Index maye buty tsilym chyslom!)\n")
+		return 0, false
 	}
 
 	i := int(indexFloat)
-	if i < 0 || i >= len(list) {
+	if i < 0 || i >= length {
 		_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Takogo elementa nemaye, ty khochesh zanadto bahato!)\n")
-		return nil, 0, false
+		return 0, false
 	}
 
-	return list, i, true
+	return i, true
+}
+
+func (ev *Evaluator) evalHashKey(index ast.Expr, env *Environment) (string, bool) {
+	keyVal := ev.Eval(index, env)
+	key, ok := keyVal.(string)
+	if !ok {
+		_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (Klyuch slovnyka maye buty ryadkom!)\n")
+		return "", false
+	}
+	return key, true
 }

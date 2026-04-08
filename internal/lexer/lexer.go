@@ -129,6 +129,12 @@ func TokenizeLine(line string) []token.Token {
 		case ch == ']':
 			tokens = append(tokens, token.Token{Type: token.RBRACKET, Literal: "]"})
 			i++
+		case ch == '{':
+			tokens = append(tokens, token.Token{Type: token.LFBRACKET, Literal: "{"})
+			i++
+		case ch == '}':
+			tokens = append(tokens, token.Token{Type: token.RFBRACKET, Literal: "}"})
+			i++
 		case ch == ',':
 			tokens = append(tokens, token.Token{Type: token.COMMA, Literal: ","})
 			i++
