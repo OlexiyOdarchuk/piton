@@ -109,14 +109,12 @@ type Identifier struct{ Value string }
 
 func (Identifier) expr() {}
 
-// TODO: hashmap
-type HashPair struct {
-	Key   uint64
-	Value any
+type SlovnykPair struct {
+	Key   Expr
+	Value Expr
 }
-type Bucket struct{ HashList []HashPair }
 
-type SlovnykLiteral struct{ BucketList []Bucket }
+type SlovnykLiteral struct{ Pairs []SlovnykPair }
 
 func (SlovnykLiteral) expr() {}
 

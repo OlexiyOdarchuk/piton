@@ -199,6 +199,12 @@ func formatExpr(expr ast.Expr) string {
 		return e.Name + "(" + strings.Join(args, ", ") + ")"
 	case ast.IndexExpr:
 		return formatExpr(e.Left) + "[" + formatExpr(e.Index) + "]"
+	case ast.SlovnykLiteral:
+		pairs := make([]string, len(e.Pairs))
+		for i, pair := range e.Pairs {
+			pairs[i] = formatExpr(pair.Key) + ": " + formatExpr(pair.Value)
+		}
+		return "{" + strings.Join(pairs, ", ") + "}"
 	case ast.SpysokLiteral:
 		elements := make([]string, len(e.Elements))
 		for i, el := range e.Elements {
@@ -216,6 +222,8 @@ func formatExpr(expr ast.Expr) string {
 			end = formatExpr(e.End)
 		}
 		return formatExpr(e.Left) + "[" + start + ":" + end + "]"
+	case ast.SelectorExpr:
+		return formatExpr(e.Left) + "." + e.Right
 	default:
 		return "[expr]"
 	}

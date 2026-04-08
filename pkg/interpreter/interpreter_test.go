@@ -388,6 +388,43 @@ func TestSpysok(t *testing.T) {
 	}
 }
 
+func TestSlovnyk(t *testing.T) {
+	tests := []struct {
+		name string
+		expr string
+		want string
+	}{
+		{
+			name: "Print slovnyk literal",
+			expr: "drukuvaty {\"imya\": \"Pit\", \"rik\": 2026}",
+			want: "{\"imya\": \"Pit\", \"rik\": 2026}\n",
+		},
+		{
+			name: "Read write and len",
+			expr: "m = {\"a\": 1}\nm[\"b\"] = 2\ndrukuvaty m[\"a\"]\ndrukuvaty m[\"b\"]\ndrukuvaty dovzhyna(m)",
+			want: "1\n2\n2\n",
+		},
+		{
+			name: "Variable key",
+			expr: "key = \"imya\"\nm = {\"imya\": \"Piton\"}\ndrukuvaty m[key]",
+			want: "Piton\n",
+		},
+		{
+			name: "Nested values",
+			expr: "m = {\"items\": [1, 2], \"meta\": {\"ready\": true}}\ndrukuvaty m",
+			want: "{\"items\": [1, 2], \"meta\": {\"ready\": true}}\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := runWithBuffer(t, tt.expr); got != tt.want {
+				t.Fatalf("got %q want %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestPoky(t *testing.T) {
 	tests := []struct {
 		name string

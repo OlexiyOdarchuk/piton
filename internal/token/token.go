@@ -14,6 +14,8 @@ const (
 	STRING
 	LBRACKET
 	RBRACKET
+	LFBRACKET
+	RFBRACKET
 	COMMA
 
 	ASSIGN
@@ -55,7 +57,7 @@ const (
 func (t TokenType) String() string {
 	names := [...]string{
 		"ILLEGAL", "EOF", "NEWLINE", "INDENT", "DEDENT",
-		"IDENT", "NUMBER", "STRING", "[", "]", ",",
+		"IDENT", "NUMBER", "STRING", "[", "]", "{", "}", ",",
 		"=", "+", "-", "*", "/", ">", "<", "(", ")", ":", ".",
 		"==", "!=", "<=", ">=", "ne", "ta", "abo",
 		"functia", "drukuvaty", "vvid", "yaksho", "inackshe",
