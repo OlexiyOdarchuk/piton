@@ -212,6 +212,21 @@ func TestRunFunctionArguments(t *testing.T) {
 	}
 }
 
+func TestRunRecursiveFunction(t *testing.T) {
+	code := "" +
+		"functia fact(n):\n" +
+		"    yaksho n <= 1:\n" +
+		"        vernuty 1\n" +
+		"    inackshe:\n" +
+		"        vernuty n * fact(n - 1)\n" +
+		"drukuvaty fact(5)\n"
+
+	want := "120\n"
+	if got := runWithBuffer(t, code); got != want {
+		t.Fatalf("got %q want %q", got, want)
+	}
+}
+
 func TestRunFunctionArgumentMismatch(t *testing.T) {
 	code := "" +
 		"functia echo(value, label):\n" +

@@ -1,0 +1,12 @@
+[book]
+authors = ["iShawyha"]
+language = "uk"
+src = "src"
+title = "Piton"
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/OlexiyOdarchuk/piton"
+edit-url-template = "https://github.com/OlexiyOdarchuk/piton/edit/main/docs/{path}"
+no-section-label = true
