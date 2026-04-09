@@ -414,6 +414,11 @@ func TestSlovnyk(t *testing.T) {
 			expr: "m = {\"items\": [1, 2], \"meta\": {\"ready\": true}}\ndrukuvaty m",
 			want: "{\"items\": [1, 2], \"meta\": {\"ready\": true}}\n",
 		},
+		{
+			name: "Delete key",
+			expr: "m = {\"a\": 1, \"b\": 2}\ndelete(m, \"a\")\ndrukuvaty dovzhyna(m)\ndrukuvaty m",
+			want: "1\n{\"b\": 2}\n",
+		},
 	}
 
 	for _, tt := range tests {
