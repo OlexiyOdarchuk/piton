@@ -368,6 +368,27 @@ func (ev *Evaluator) Eval(node ast.Node, env *Environment) interface{} {
 				_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (dodaty() pratsyuye tilky zi spyskamy!)\n")
 				return nil
 			}
+			if n.Name == "delete" {
+				if len(n.Args) != 2 {
+					_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (delete() ochikuye rivno 2 arhumentu!)\n")
+					return nil
+				}
+
+				target := ev.Eval(n.Args[0], env)
+				slovnyk, ok := target.(*hashmap.Map)
+				if !ok {
+					_, _ = ev.Out.WriteString("Ryadok [-]: Ya tut interpretator, ya znayu yak maye buty. A tak yak ty pyshesh, tak buty ne maye! (delete() pratsyuye tilky zi slovnykamy!)\n")
+					return nil
+				}
+
+				key, ok := ev.evalHashKey(n.Args[1], env)
+				if !ok {
+					return nil
+				}
+
+				slovnyk.Delete(key)
+				return nil
+			}
 		}
 
 		targetEnv := ev.Globals

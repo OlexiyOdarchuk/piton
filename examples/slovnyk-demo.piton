@@ -13,6 +13,7 @@ drukuvaty profil["mista"][0]
 profil["rol"] = "moderator"
 profil["vik"] = profil["vik"] + 1
 profil["nalashtuvannya"]["tema"] = "temna"
+delete(profil, "vik")
 
 drukuvaty "Onovlenyi profil:"
 drukuvaty profil
