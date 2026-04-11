@@ -1,0 +1,93 @@
+name: Piton Releaser 🐍
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Piton
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # Linux
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          # Windows
+          - goos: windows
+            goarch: amd64
+          - goos: windows
+            goarch: arm64
+          # macOS
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.1'
+          cache: true
+
+
+      - name: Build Binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORKSPACE=${GITHUB_WORKSPACE:-$(pwd)}
+          cd "$WORKSPACE"
+          if [ ! -d cmd/piton ]; then
+            echo "cmd/piton not found in $WORKSPACE"
+            ls -1 "$WORKSPACE" || true
+            exit 1
+          fi
+
+          mkdir -p dist
+          arch_ext=""
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            arch_ext=".exe"
+          fi
+
+          CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
+          go build -trimpath -ldflags "-s -w" -o "dist/piton-${{ matrix.goos }}-${{ matrix.goarch }}${arch_ext}" ./cmd/piton
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: piton-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/piton-${{ matrix.goos }}-${{ matrix.goarch }}*
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all binaries
+        uses: actions/download-artifact@v3 
+        with:
+          path: ./all-binaries
+
+      - name: Create Release
+        uses: https://gitea.com/actions/gitea-release-action@v1
+        with:
+          name: "Piton ${{ github.ref_name }} 🐍"
+          body: "Реліз мови програмування Piton"
+          prerelease: false
+          files: |-
+            all-binaries/**/*.exe
+            all-binaries/**/piton-*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

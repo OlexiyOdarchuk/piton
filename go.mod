@@ -2,14 +2,16 @@ module github.com/OlexiyOdarchuk/piton
 
 go 1.26.1
 
-require oss.terrastruct.com/d2 v0.7.1
+require (
+	github.com/cespare/xxhash/v2 v2.3.0
+	oss.terrastruct.com/d2 v0.7.1
+)
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.0 // indirect
 	github.com/alecthomas/chroma/v2 v2.14.0 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
-	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dlclark/regexp2 v1.11.4 // indirect
 	github.com/dop251/goja v0.0.0-20240927123429-241b342198c2 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.4+incompatible // indirect

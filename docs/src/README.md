@@ -26,7 +26,7 @@ drukuvaty profil["imya"]
 drukuvaty profil
 ```
 
-## Shcho chytaty dалі
+## Shcho chytaty dаly
 
 Якщо ти тільки починаєш:
 
