@@ -23,10 +23,10 @@ func main() {
 		return
 	}
 	filename := os.Args[len(os.Args)-1]
-	visualize := flag.Bool("draw", false, "Generate flowchart to file")
-	visualizeProject := flag.Bool("all", false, "Generate flowchart to all project")
-	splitMode := flag.Bool("split", false, "Generate separate file for each function")
-	targetFunc := flag.String("target", "", "Generate diagram only for specific function")
+	visualize := flag.Bool("draw", false, "Zgeneruvaty blok-schemy do faily")
+	visualizeProject := flag.Bool("all", false, "Zgeneruvaty blok-schemy do vsyogo proyektu")
+	splitMode := flag.Bool("split", false, "Zgeneruvaty okremiy fail z blok-schemoy dlya kozhnoi functii")
+	targetFunc := flag.String("target", "", "Zgeneruvaty blok-schemy do odnoy functii")
 	flag.Parse()
 
 	content, err := os.ReadFile(filename)
