@@ -3,7 +3,7 @@
 [![NixOS Powered](https://img.shields.io/badge/NixOS-Supported-blue.svg?logo=nixos&logoColor=white)](https://nixos.org)
 [![Nix Build](https://github.com/OlexiyOdarchuk/piton/actions/workflows/nix.yml/badge.svg)](https://github.com/OlexiyOdarchuk/piton/actions/workflows/nix.yml)
 [![Latest Release](https://img.shields.io/github/release/OlexiyOdarchuk/piton.svg)](https://github.com/OlexiyOdarchuk/piton/releases)
-[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://olexiyodarchuk.github.io/piton/)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://piton.ishawyha.dev)
 [![Go Report Card](https://goreportcard.com/badge/github.com/OlexiyOdarchuk/piton)](https://goreportcard.com/report/github.com/OlexiyOdarchuk/piton)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Mirror](https://img.shields.io/badge/mirror-Codeberg-blue)](https://codeberg.org/iShawyha/piton)
@@ -15,7 +15,7 @@
 
 ## 📚 Документація
 
-Якщо ви хочете саме **вивчати мову**, а не читати огляд репозиторію, починайте з **[документації](https://olexiyodarchuk.github.io/piton/)**.
+Якщо ви хочете саме **вивчати мову**, а не читати огляд репозиторію, починайте з **[документації](https://piton.ishawyha.dev/)**.
 
 Також ви можете:
 
