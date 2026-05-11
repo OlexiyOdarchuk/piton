@@ -32,7 +32,15 @@
         };
 
         devShells.default = pkgs.mkShell {
-          buildInputs = [ pkgs.go pkgs.gopls pkgs.gotools pkgs.nixpkgs-fmt pkgs.mdbook ];
+          buildInputs = [
+            pkgs.go
+            pkgs.gopls
+            pkgs.gotools
+            pkgs.nixpkgs-fmt
+            pkgs.mdbook
+            pkgs.tinygo
+            pkgs.binaryen # wasm-opt
+          ];
         };
       });
 }

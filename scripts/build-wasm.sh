@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# Build the two WASM artefacts for the ishawyha.dev Piton Lab.
+#
+#   piton-runner.wasm  — TinyGo, interpreter only (~220 KB, ~80 KB brotli)
+#   piton-viz.wasm     — Go,     full D2 visualizer (~23 MB, ~5.5 MB brotli)
+#
+# The runner loads on first interaction; the visualizer is lazy-loaded only
+# when the user clicks "Flowchart".
+#
+# Usage:
+#     nix develop --command bash scripts/build-wasm.sh [OUT_DIR]
+#
+# OUT_DIR defaults to ./dist. Copy the four output files to your site's
+# static/ directory after the build:
+#
+#     piton-runner.wasm
+#     piton-viz.wasm
+#     wasm_exec_tinygo.js   (TinyGo's glue)
+#     wasm_exec.js          (standard Go's glue)
+
+set -euo pipefail
+
+OUT="${1:-dist}"
+mkdir -p "$OUT"
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+
+echo "==> Building runner with TinyGo (-opt=z, no debug)"
+tinygo build \
+    -target=wasm \
+    -no-debug \
+    -opt=z \
+    -o "$OUT/piton-runner.wasm" \
+    ./cmd/wasm-runner
+
+echo "==> Building viz with standard Go (-ldflags=-s -w, -gcflags=-l -B, -trimpath)"
+# -gcflags="all=-l -B": disable inlining + bounds checks to shave ~450 KB.
+# Safe for this read-only visualizer where bounds errors would already be a
+# bug from upstream (parser/AST never feeds invalid indices to D2).
+GOOS=js GOARCH=wasm go build \
+    -ldflags="-s -w" \
+    -gcflags="all=-l -B" \
+    -trimpath \
+    -o "$OUT/piton-viz.wasm" \
+    ./cmd/wasm-viz
+
+echo "==> Optimising both with wasm-opt"
+wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
+    "$OUT/piton-runner.wasm" -o "$OUT/piton-runner.wasm.tmp"
+mv "$OUT/piton-runner.wasm.tmp" "$OUT/piton-runner.wasm"
+
+# Viz is too large for -Oz (OOMs the optimiser). -O2 still saves ~500 KB.
+wasm-opt -O2 --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
+    "$OUT/piton-viz.wasm" -o "$OUT/piton-viz.wasm.tmp"
+mv "$OUT/piton-viz.wasm.tmp" "$OUT/piton-viz.wasm"
+
+echo "==> Copying wasm_exec.js variants"
+cp "$(tinygo env TINYGOROOT)/targets/wasm_exec.js" "$OUT/wasm_exec_tinygo.js"
+cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" "$OUT/wasm_exec.js"
+
+echo
+echo "==> Done. Sizes:"
+ls -la "$OUT/" | awk 'NR>1 {printf "  %10s  %s\n", $5, $NF}'
+
+if command -v brotli >/dev/null 2>&1; then
+    echo
+    echo "==> Brotli-compressed projection (-q 11):"
+    for f in "$OUT/piton-runner.wasm" "$OUT/piton-viz.wasm"; do
+        size=$(brotli -q 11 -c "$f" | wc -c)
+        printf "  %10d  %s.br\n" "$size" "$(basename "$f")"
+    done
+fi
