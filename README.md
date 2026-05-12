@@ -4,6 +4,7 @@
 [![Nix Build](https://github.com/OlexiyOdarchuk/piton/actions/workflows/nix.yml/badge.svg)](https://github.com/OlexiyOdarchuk/piton/actions/workflows/nix.yml)
 [![Latest Release](https://img.shields.io/github/release/OlexiyOdarchuk/piton.svg)](https://github.com/OlexiyOdarchuk/piton/releases)
 [![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://piton.ishawyha.dev)
+[![Live Playground](https://img.shields.io/badge/playground-ishawyha.dev-8b5cf6?logo=webassembly&logoColor=white)](https://ishawyha.dev/#lab)
 [![Go Report Card](https://goreportcard.com/badge/github.com/OlexiyOdarchuk/piton)](https://goreportcard.com/report/github.com/OlexiyOdarchuk/piton)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Mirror](https://img.shields.io/badge/mirror-Codeberg-blue)](https://codeberg.org/iShawyha/piton)
@@ -13,9 +14,11 @@
 
 > 🌐 Свобода кодування без залежності від платформи: репозиторій доступний не тільки на [Github](https://github.com/OlexiyOdarchuk/piton), а й на [Codeberg](https://codeberg.org/iShawyha/piton)
 
-## 📚 Документація
+## 📚 Документація та плейграунд
 
 Якщо ви хочете саме **вивчати мову**, а не читати огляд репозиторію, починайте з **[документації](https://piton.ishawyha.dev/)**.
+
+А якщо хочеться спочатку **просто погратися** — є **[лайв-плейграунд на ishawyha.dev/#lab](https://ishawyha.dev/#lab)**: інтерпретатор зкомпільовано у WebAssembly через TinyGo (~220 KB), окремо завантажується модуль генерації блок-схем — усе працює прямо в браузері, без бекенду.
 
 Також ви можете:
 
