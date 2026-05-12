@@ -27,12 +27,24 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 echo "==> Building runner with TinyGo (-opt=z, no debug)"
+# TinyGo 0.40 caps at Go 1.25 but the rest of the project tracks newer Go.
+# Temporarily downshift the go directive in go.mod for the tinygo build only,
+# then restore it on exit (success, failure, or interrupt).
+GOMOD_BACKUP="$(mktemp)"
+cp go.mod "$GOMOD_BACKUP"
+trap 'mv "$GOMOD_BACKUP" go.mod' EXIT INT TERM
+sed -i -E 's/^go 1\.(2[6-9]|[3-9][0-9]).*/go 1.25/' go.mod
+
 tinygo build \
     -target=wasm \
     -no-debug \
     -opt=z \
     -o "$OUT/piton-runner.wasm" \
     ./cmd/wasm-runner
+
+# Restore go.mod immediately so the subsequent go build sees the real version.
+mv "$GOMOD_BACKUP" go.mod
+trap - EXIT INT TERM
 
 echo "==> Building viz with standard Go (-ldflags=-s -w, -gcflags=-l -B, -trimpath)"
 # -gcflags="all=-l -B": disable inlining + bounds checks to shave ~450 KB.
