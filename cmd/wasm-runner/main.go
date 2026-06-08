@@ -1,8 +1,9 @@
 //go:build js && wasm
 
 // wasm-runner exposes Piton's interpreter to the browser.
-// Built with TinyGo for minimal binary size — visualizer (D2) is intentionally
-// excluded to keep the runner small. See cmd/wasm-viz for the diagram side.
+// Built with TinyGo for minimal binary size — the rombik-based visualizer is
+// intentionally excluded to keep the runner small. See cmd/wasm-viz for the
+// diagram side.
 package main
 
 import (

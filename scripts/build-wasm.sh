@@ -2,7 +2,7 @@
 # Build the two WASM artefacts for the ishawyha.dev Piton Lab.
 #
 #   piton-runner.wasm  — TinyGo, interpreter only (~220 KB, ~80 KB brotli)
-#   piton-viz.wasm     — Go,     full D2 visualizer (~23 MB, ~5.5 MB brotli)
+#   piton-viz.wasm     — Go,     ДСТУ visualizer via rombik (~3.6 MB, ~683 KB brotli)
 #
 # The runner loads on first interaction; the visualizer is lazy-loaded only
 # when the user clicks "Flowchart".
@@ -49,7 +49,7 @@ trap - EXIT INT TERM
 echo "==> Building viz with standard Go (-ldflags=-s -w, -gcflags=-l -B, -trimpath)"
 # -gcflags="all=-l -B": disable inlining + bounds checks to shave ~450 KB.
 # Safe for this read-only visualizer where bounds errors would already be a
-# bug from upstream (parser/AST never feeds invalid indices to D2).
+# bug from upstream (parser/AST never feeds invalid indices to rombik).
 GOOS=js GOARCH=wasm go build \
     -ldflags="-s -w" \
     -gcflags="all=-l -B" \
@@ -62,7 +62,9 @@ wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sig
     "$OUT/piton-runner.wasm" -o "$OUT/piton-runner.wasm.tmp"
 mv "$OUT/piton-runner.wasm.tmp" "$OUT/piton-runner.wasm"
 
-# Viz is too large for -Oz (OOMs the optimiser). -O2 still saves ~500 KB.
+# Viz uses -O2, not -Oz: measured on the rombik-based build, -Oz yields a
+# smaller raw file but compresses ~10 KB WORSE under brotli (which is what the
+# site serves), so -O2 wins on the wire (~683 KB vs ~693 KB brotli).
 wasm-opt -O2 --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
     "$OUT/piton-viz.wasm" -o "$OUT/piton-viz.wasm.tmp"
 mv "$OUT/piton-viz.wasm.tmp" "$OUT/piton-viz.wasm"

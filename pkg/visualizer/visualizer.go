@@ -19,8 +19,8 @@ import (
 // The process follows a strict pipeline:
 //  1. Lexer: Breaks the raw string into a stream of tokens.
 //  2. Parser: Constructs an Abstract Syntax Tree (AST) from the tokens.
-//  3. Visualizer: Traverses the AST to produce a D2-based diagram
-//     following flowchart standards.
+//  3. Visualizer: Traverses the AST to produce a rombik-based diagram
+//     following ДСТУ flowchart standards.
 //
 // Parameters:
 //   - targetFunction: If non-empty, generates a diagram ONLY for the specified function.
@@ -28,7 +28,7 @@ import (
 //
 // Returns a map where keys are suggested filenames (e.g., "main_myFunc.svg" or "flowchart.svg")
 // and values are the rendered SVG byte slices. Returns an error if lexical or structural analysis fails.
-func Visualize(code string, targetFunction string, splitFiles bool, output ...io.Writer) (map[string][]byte, error) {
+func Visualize(code string, targetFunction string, splitFiles bool, format string, output ...io.Writer) (map[string][]byte, error) {
 	var out io.Writer = os.Stdout
 
 	if len(output) > 0 && output[0] != nil {
@@ -38,7 +38,7 @@ func Visualize(code string, targetFunction string, splitFiles bool, output ...io
 	tokens := lexer.Tokenize(code)
 	p := parser.New(tokens, out)
 	program := p.ParseProgram()
-	return visualizer.Visualize(program, targetFunction, splitFiles)
+	return visualizer.Visualize(program, targetFunction, splitFiles, format)
 }
 
 // VisualizeProject parses the provided entry Piton file and automatically resolves
@@ -51,8 +51,8 @@ func Visualize(code string, targetFunction string, splitFiles bool, output ...io
 // The process follows a strict pipeline:
 //  1. Interpreter: Reads the entry file, recursively resolves and parses all
 //     imported modules, and merges their functions into a single "Super AST".
-//  2. Visualizer: Traverses this complete AST to produce unified or split D2-based
-//     diagrams following flowchart standards.
+//  2. Visualizer: Traverses this complete AST to produce unified or split rombik-based
+//     diagrams following ДСТУ flowchart standards.
 //
 // Parameters:
 //   - entryFilePath: The path to the main Piton file.
@@ -62,7 +62,7 @@ func Visualize(code string, targetFunction string, splitFiles bool, output ...io
 // Returns a map where keys are suggested filenames (e.g., "math_average.svg")
 // and values are the rendered SVG byte slices. Returns an error if file reading,
 // parsing, or import resolution fails.
-func VisualizeProject(entryFilePath, targetFunction string, splitFiles bool, output ...io.Writer) (map[string][]byte, error) {
+func VisualizeProject(entryFilePath, targetFunction string, splitFiles bool, format string, output ...io.Writer) (map[string][]byte, error) {
 	var out io.Writer = os.Stdout
 
 	if len(output) > 0 && output[0] != nil {
@@ -73,7 +73,7 @@ func VisualizeProject(entryFilePath, targetFunction string, splitFiles bool, out
 	if err != nil {
 		return nil, err
 	}
-	return visualizer.Visualize(superProgram, targetFunction, splitFiles)
+	return visualizer.Visualize(superProgram, targetFunction, splitFiles, format)
 }
 
 func parseProject(entryFilePath string, out io.Writer) (ast.Program, error) {

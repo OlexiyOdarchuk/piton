@@ -1,9 +1,9 @@
 //go:build js && wasm
 
-// wasm-viz exposes the Piton flowchart visualizer (D2-backed) to the browser.
-// This is the heavy half of the wasm split — built with the standard Go
-// toolchain because D2 / goja / chroma rely on features TinyGo doesn't
-// support. Loaded lazily by the frontend only when the user requests a chart.
+// wasm-viz exposes the Piton flowchart visualizer (rombik-backed) to the
+// browser. Built with the standard Go toolchain and loaded lazily by the
+// frontend only when the user requests a chart. rombik renders ДСТУ flowcharts
+// in pure Go (no python3) via FromIR, so it is WASM-safe.
 package main
 
 import (
@@ -17,7 +17,7 @@ func visualizePiton(this js.Value, args []js.Value) any {
 		return ""
 	}
 	code := args[0].String()
-	diagrams, err := visualizer.Visualize(code, "", false)
+	diagrams, err := visualizer.Visualize(code, "", false, "svg")
 	if err != nil {
 		return "Pomylka generacii shemu: " + err.Error()
 	}

@@ -27,6 +27,7 @@ func main() {
 	visualizeProject := flag.Bool("all", false, "Zgeneruvaty blok-schemy do vsyogo proyektu")
 	splitMode := flag.Bool("split", false, "Zgeneruvaty okremiy fail z blok-schemoy dlya kozhnoi functii")
 	targetFunc := flag.String("target", "", "Zgeneruvaty blok-schemy do odnoy functii")
+	format := flag.String("format", "svg", "Format vyvodu (svg, png, pdf, typst, excalidraw)")
 	flag.Parse()
 
 	content, err := os.ReadFile(filename)
@@ -36,12 +37,12 @@ func main() {
 	}
 
 	if *visualize {
-		diagrams, err := visualizer.Visualize(string(content), *targetFunc, *splitMode)
+		diagrams, err := visualizer.Visualize(string(content), *targetFunc, *splitMode, *format)
 		if err != nil {
 			_, _ = os.Stderr.WriteString("Pomylka generacii shemu: " + err.Error() + "\n")
 		}
 		for chart_filename, data := range diagrams {
-			if chart_filename == "flowchart.svg" {
+			if chart_filename == "flowchart.svg" || chart_filename == "flowchart." + *format {
 				chart_filename = filename + ".svg"
 			}
 			_ = os.WriteFile(chart_filename, data, 0644)
@@ -49,12 +50,12 @@ func main() {
 		}
 
 	} else if *visualizeProject {
-		diagrams, err := visualizer.VisualizeProject(filename, *targetFunc, *splitMode)
+		diagrams, err := visualizer.VisualizeProject(filename, *targetFunc, *splitMode, *format)
 		if err != nil {
 			_, _ = os.Stderr.WriteString("Pomylka generacii shemu: " + err.Error() + "\n")
 		}
 		for chart_filename, data := range diagrams {
-			if chart_filename == "flowchart.svg" {
+			if chart_filename == "flowchart.svg" || chart_filename == "flowchart." + *format {
 				chart_filename = filename + ".svg"
 			}
 			_ = os.WriteFile(chart_filename, data, 0644)
