@@ -14,10 +14,10 @@
       {
         packages.default = pkgs.buildGoModule {
           pname = "piton";
-          version = "1.8.2";
+          version = "1.9.0";
           src = ./.;
 
-          vendorHash = "sha256-lSQ2BIQ631yqEPfuIuA4xasHy6Uz8M2E0ac5vp3CUMw=";
+          vendorHash = "sha256-fkbOmBaFsprjUaMqEhjNiH0+wxGjgL1+i5LBBL8Xzlg=";
 
           subPackages = [ "cmd/piton" ];
           
