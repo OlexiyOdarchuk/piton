@@ -22,8 +22,8 @@ github.com/ByteArena/poly2tri-go v0.0.0-20170716161910-d102ad91854f h1:l7moT9o/v
 github.com/ByteArena/poly2tri-go v0.0.0-20170716161910-d102ad91854f/go.mod h1:vIOkSdX3NDCPwgu8FIuTat2zDF0FPXXQ0RYFRy+oQic=
 github.com/Kagami/go-avif v0.1.0 h1:8GHAGLxCdFfhpd4Zg8j1EqO7rtcQNenxIDerC/uu68w=
 github.com/Kagami/go-avif v0.1.0/go.mod h1:OPmPqzNdQq3+sXm0HqaUJQ9W/4k+Elbc3RSfJUemDKA=
-github.com/OlexiyOdarchuk/rombik v0.0.0-20260608021424-2dd2b2371474 h1:/e6/XJjfQwtaJ2+GNQe21HWkMTk86odPGCGijvyA020=
-github.com/OlexiyOdarchuk/rombik v0.0.0-20260608021424-2dd2b2371474/go.mod h1:WJc3RRExIbnZlxmc/qQzd8WNHyufbYApvpJkPVGfE5o=
+github.com/OlexiyOdarchuk/rombik v0.0.0-20260610004401-91c60462cf42 h1:6ghS3yD+Y8DA8aXYzjFy3FH9dwCIWB9ch48TDZOOBrM=
+github.com/OlexiyOdarchuk/rombik v0.0.0-20260610004401-91c60462cf42/go.mod h1:WJc3RRExIbnZlxmc/qQzd8WNHyufbYApvpJkPVGfE5o=
 github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b h1:slYM766cy2nI3BwyRiyQj/Ud48djTMtMebDqepE95rw=
 github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b/go.mod h1:1KcenG0jGWcpt8ov532z81sp/kMMUG485J2InIOyADM=
 github.com/andybalholm/brotli v1.2.1 h1:R+f5xP285VArJDRgowrfb9DqL18yVK0gKAW/F+eTWro=

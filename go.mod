@@ -4,7 +4,7 @@ go 1.26.2
 
 require github.com/cespare/xxhash/v2 v2.3.0
 
-require github.com/OlexiyOdarchuk/rombik v0.0.0-20260608021424-2dd2b2371474
+require github.com/OlexiyOdarchuk/rombik v0.0.0-20260610004401-91c60462cf42
 
 require (
 	codeberg.org/go-latex/latex v0.2.0 // indirect

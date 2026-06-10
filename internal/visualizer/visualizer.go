@@ -144,9 +144,9 @@ func renderResult(res rombik.Result, format string) ([]byte, error) {
 	case "excalidraw":
 		return []byte(res.Excalidraw()), nil
 	case "png":
-		return res.PNG(2.0)
+		return raster.PNG(res.Diagram, 2.0)
 	case "pdf":
-		return res.PDF()
+		return raster.PDF(res.Diagram)
 	default:
 		return []byte(res.SVG()), nil
 	}
