@@ -2,6 +2,14 @@ module github.com/OlexiyOdarchuk/piton
 
 go 1.26.1
 
+// v1.9.0/v1.9.1 depended on the now-closed github.com/OlexiyOdarchuk/rombik
+// library and don't build for external users. The visualizer was rolled back
+// to oss.terrastruct.com/d2 in v1.9.2.
+retract (
+	v1.9.0
+	v1.9.1
+)
+
 require (
 	github.com/cespare/xxhash/v2 v2.3.0
 	oss.terrastruct.com/d2 v0.7.1
