@@ -164,6 +164,27 @@ func TestRunLogicBranches(t *testing.T) {
 	}
 }
 
+func TestNotEqual(t *testing.T) {
+	tests := []struct {
+		name string
+		code string
+		want string
+	}{
+		{name: "different", code: "drukuvaty 3 != 4\n", want: "true\n"},
+		{name: "same", code: "drukuvaty 4 != 4\n", want: "false\n"},
+		{name: "in condition", code: "a = 1\nyaksho (a != 2) ta (a == 1):\n    drukuvaty \"ok\"\n", want: "ok\n"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := runWithBuffer(t, tt.code)
+			if got != tt.want {
+				t.Fatalf("got %q want %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestRunFunctionsAndScoping(t *testing.T) {
 	code := "" +
 		"functia add():\n" +
