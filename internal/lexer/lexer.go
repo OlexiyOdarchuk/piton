@@ -80,6 +80,8 @@ func TokenizeLine(line string) []token.Token {
 			i++
 		case ch == '=':
 			makeTwoCharToken('=', '=', token.EQ, token.ASSIGN)
+		case ch == '!':
+			makeTwoCharToken('!', '=', token.NOT_EQ, token.ILLEGAL)
 		case ch == '+':
 			tokens = append(tokens, token.Token{Type: token.PLUS, Literal: "+"})
 			i++
