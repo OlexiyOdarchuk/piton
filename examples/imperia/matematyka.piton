@@ -1,0 +1,102 @@
+# Модуль matematyka: усе, чого бракує серед вбудованих функцій
+
+functia pidloha(x):
+    r = zaokruhlennya(x, 0)
+    yaksho r > x:
+        r = r - 1
+    vernuty r
+
+functia ostacha(a, b):
+    r = a - b * pidloha(a / b)
+    yaksho r < 0:
+        r = r + b
+    yaksho r >= b:
+        r = r - b
+    vernuty r
+
+functia bilshe_z(a, b):
+    yaksho a > b:
+        vernuty a
+    vernuty b
+
+functia menshe_z(a, b):
+    yaksho a < b:
+        vernuty a
+    vernuty b
+
+functia obmezhyty(x, nyz, verkh):
+    vernuty bilshe_z(nyz, menshe_z(x, verkh))
+
+functia nsd(a, b):
+    yaksho b == 0:
+        vernuty a
+    vernuty nsd(b, ostacha(a, b))
+
+functia nsk(a, b):
+    vernuty a / nsd(a, b) * b
+
+functia faktorial(n):
+    yaksho n <= 1:
+        vernuty 1
+    vernuty n * faktorial(n - 1)
+
+functia fibonachi(n):
+    a = 0
+    b = 1
+    i = 0
+    poky i < n:
+        t = a + b
+        a = b
+        b = t
+        i = i + 1
+    vernuty a
+
+functia prostyi(n):
+    yaksho n < 2:
+        vernuty false
+    rezultat = true
+    d = 2
+    poky (d * d <= n) ta rezultat:
+        yaksho ostacha(n, d) == 0:
+            rezultat = false
+        d = d + 1
+    vernuty rezultat
+
+functia prosti_do(n):
+    znaideni = []
+    k = 2
+    poky k <= n:
+        yaksho prostyi(k):
+            znaideni = dodaty(znaideni, k)
+        k = k + 1
+    vernuty znaideni
+
+functia stupin_za_modulem(osnova, pokaznyk, modul):
+    yaksho pokaznyk == 0:
+        vernuty 1
+    polovyna = stupin_za_modulem(osnova, pidloha(pokaznyk / 2), modul)
+    kvadrat = ostacha(polovyna * polovyna, modul)
+    yaksho ostacha(pokaznyk, 2) == 1:
+        vernuty ostacha(kvadrat * osnova, modul)
+    vernuty kvadrat
+
+functia korin_nyutona(x):
+    yaksho x <= 0:
+        vernuty 0
+    z = x
+    krok = 0
+    poky krok < 25:
+        z = (z + x / z) / 2
+        krok = krok + 1
+    vernuty z
+
+functia vidsotok(chastyna, tsile):
+    yaksho tsile == 0:
+        vernuty 0
+    vernuty zaokruhlennya(chastyna / tsile * 100, 1)
+
+functia kilkist_tsyfr(n):
+    n = abs n
+    yaksho n < 10:
+        vernuty 1
+    vernuty 1 + kilkist_tsyfr(pidloha(n / 10))

@@ -1,0 +1,110 @@
+# Модуль planety: створення, ріст і виробництво планет
+# vlasnyk: 0 - Імперія, 1 - Повстанці, 2 - нейтральна
+
+functia nazvy_typiv():
+    vernuty ["Пустельна", "Океанічна", "Крижана", "Газовий гігант", "Тропічна"]
+
+functia nazvy_vlasnykiv():
+    vernuty ["Імперія", "Повстанці", "Нейтральна"]
+
+functia stvoryty_planetu(nomer, vlasnyk, gen):
+    korini = ["Кеп", "Зор", "Альт", "Вег", "Нікс", "Тар", "Ор", "Лум", "Сид", "Еос"]
+    zakinchennya = ["ія", "ус", "он", "ара", "екс", "іум"]
+    nazva = vypadok.vypadkovyi_z(gen, korini) + vypadok.vypadkovyi_z(gen, zakinchennya) + "-" + nomer
+    planeta = {"nomer": nomer, "nazva": nazva, "vlasnyk": vlasnyk}
+    planeta["typ"] = vypadok.vypadkove_vid_do(gen, 0, 5)
+    planeta["naselennya"] = vypadok.vypadkove_vid_do(gen, 20, 120)
+    planeta["shchastya"] = vypadok.vypadkove_vid_do(gen, 40, 90)
+    planeta["oborona"] = vypadok.vypadkove_vid_do(gen, 5, 30)
+    planeta["zapasy"] = {"ruda": 50, "energiya": 50, "yizha": 50}
+    vernuty planeta
+
+functia koefitsienty_typu(typ):
+    k = {"ruda": 1, "energiya": 1, "yizha": 1}
+    yaksho typ == 0:
+        k["ruda"] = 2.2
+        k["yizha"] = 0.4
+    inackshe yaksho typ == 1:
+        k["yizha"] = 2.5
+        k["ruda"] = 0.5
+    inackshe yaksho typ == 2:
+        k["ruda"] = 1.6
+        k["energiya"] = 0.6
+        k["yizha"] = 0.3
+    inackshe yaksho typ == 3:
+        k["energiya"] = 3
+        k["yizha"] = 0.1
+    inackshe:
+        k["yizha"] = 1.8
+        k["energiya"] = 1.2
+    vernuty k
+
+functia vyrobnytstvo(planeta, riven_tekh):
+    k = koefitsienty_typu(planeta["typ"])
+    robitnyky = planeta["naselennya"] * planeta["shchastya"] / 100
+    mnozhnyk = 1 + riven_tekh * 0.15
+    vypusk = {}
+    resursy = ["ruda", "energiya", "yizha"]
+    i = 0
+    poky i < 3:
+        r = resursy[i]
+        vypusk[r] = zaokruhlennya(robitnyky * k[r] * mnozhnyk * 0.3, 1)
+        i = i + 1
+    vernuty vypusk
+
+functia spozhyvannya(planeta):
+    vernuty {"ruda": 0, "energiya": planeta["naselennya"] * 0.1, "yizha": planeta["naselennya"] * 0.25}
+
+functia rist_naselennya(planeta):
+    zapasy = planeta["zapasy"]
+    limit = 80 + zapasy["yizha"] * 0.8
+    n = planeta["naselennya"]
+    tempy = 0.08 * (planeta["shchastya"] / 100)
+    pryrist = n * tempy * (1 - n / limit)
+    planeta["naselennya"] = zaokruhlennya(matematyka.bilshe_z(5, n + pryrist), 1)
+
+functia onovyty_planetu(planeta, riven_tekh):
+    vypusk = vyrobnytstvo(planeta, riven_tekh)
+    potreby = spozhyvannya(planeta)
+    zapasy = planeta["zapasy"]
+    resursy = ["ruda", "energiya", "yizha"]
+    holod = false
+    i = 0
+    poky i < 3:
+        r = resursy[i]
+        zapasy[r] = zapasy[r] + vypusk[r] - potreby[r]
+        yaksho zapasy[r] < 0:
+            zapasy[r] = 0
+            yaksho ryadky.rivni(r, "yizha"):
+                holod = true
+        i = i + 1
+    yaksho zapasy["yizha"] <= 0:
+        holod = true
+    yaksho holod:
+        planeta["shchastya"] = matematyka.obmezhyty(planeta["shchastya"] - 12, 0, 100)
+        planeta["naselennya"] = zaokruhlennya(planeta["naselennya"] * 0.9, 1)
+    inackshe:
+        planeta["shchastya"] = matematyka.obmezhyty(planeta["shchastya"] + 2, 0, 100)
+    rist_naselennya(planeta)
+    vernuty vypusk
+
+functia syla_planety(planeta):
+    vernuty zaokruhlennya(planeta["naselennya"] * 0.5 + planeta["oborona"] * 2 + planeta["shchastya"] * 0.3, 1)
+
+functia planety_vlasnyka(planety, vlasnyk):
+    rez = []
+    i = 0
+    poky i < dovzhyna(planety):
+        yaksho planety[i]["vlasnyk"] == vlasnyk:
+            rez = dodaty(rez, planety[i])
+        i = i + 1
+    vernuty rez
+
+functia nomery_vlasnyka(planety, vlasnyk):
+    rez = []
+    i = 0
+    poky i < dovzhyna(planety):
+        yaksho planety[i]["vlasnyk"] == vlasnyk:
+            rez = dodaty(rez, i)
+        i = i + 1
+    vernuty rez

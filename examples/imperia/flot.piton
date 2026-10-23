@@ -1,0 +1,54 @@
+# Модуль flot: кораблі, верфі та космічні битви
+
+functia stvoryty_flot(korabli, ataka, zakhyst):
+    vernuty {"korabli": korabli, "ataka": ataka, "zakhyst": zakhyst, "dosvid": 0, "peremohy": 0, "porazky": 0}
+
+functia vartist_korablya():
+    vernuty {"ruda": 30, "energiya": 20, "kredyty": 40}
+
+functia pobuduvaty_korabli(imperia, flt, bazhano):
+    tsina = vartist_korablya()
+    mozhlyvo_ruda = matematyka.pidloha(imperia["ruda"] / tsina["ruda"])
+    mozhlyvo_energiya = matematyka.pidloha(imperia["energiya"] / tsina["energiya"])
+    mozhlyvo_groshi = matematyka.pidloha(imperia["skarbnytsia"] / tsina["kredyty"])
+    kilkist = matematyka.menshe_z(bazhano, matematyka.menshe_z(mozhlyvo_ruda, matematyka.menshe_z(mozhlyvo_energiya, mozhlyvo_groshi)))
+    yaksho kilkist <= 0:
+        vernuty 0
+    imperia["ruda"] = imperia["ruda"] - kilkist * tsina["ruda"]
+    imperia["energiya"] = imperia["energiya"] - kilkist * tsina["energiya"]
+    imperia["skarbnytsia"] = imperia["skarbnytsia"] - kilkist * tsina["kredyty"]
+    flt["korabli"] = flt["korabli"] + kilkist
+    vernuty kilkist
+
+functia boiova_syla(flt):
+    vernuty flt["korabli"] * flt["ataka"] * (1 + flt["dosvid"] * 0.05)
+
+functia raund_bytvy(napadnyk, zakhysnyk, gen):
+    udar = boiova_syla(napadnyk) * (0.6 + vypadok.drib(gen) * 0.8)
+    zakhyst = zakhysnyk["zakhyst"] * zakhysnyk["korabli"] * 0.5
+    shkoda = matematyka.bilshe_z(0, udar - zakhyst)
+    znyshcheno = matematyka.menshe_z(zakhysnyk["korabli"], matematyka.pidloha(shkoda / 10))
+    zakhysnyk["korabli"] = zakhysnyk["korabli"] - znyshcheno
+    vernuty znyshcheno
+
+functia bytva(napadnyk, zakhysnyk, gen):
+    start_a = napadnyk["korabli"]
+    start_z = zakhysnyk["korabli"]
+    raund = 0
+    poky (napadnyk["korabli"] > 0) ta (zakhysnyk["korabli"] > 0) ta (raund < 15):
+        raund_bytvy(napadnyk, zakhysnyk, gen)
+        yaksho zakhysnyk["korabli"] > 0:
+            raund_bytvy(zakhysnyk, napadnyk, gen)
+        raund = raund + 1
+    rezultat = {"raundy": raund, "vtraty_napadnyka": start_a - napadnyk["korabli"], "vtraty_zakhysnyka": start_z - zakhysnyk["korabli"]}
+    yaksho zakhysnyk["korabli"] <= 0:
+        rezultat["peremoha"] = true
+        napadnyk["dosvid"] = napadnyk["dosvid"] + 1
+        napadnyk["peremohy"] = napadnyk["peremohy"] + 1
+    inackshe:
+        rezultat["peremoha"] = false
+        napadnyk["porazky"] = napadnyk["porazky"] + 1
+    vernuty rezultat
+
+functia harnizon_planety(planeta):
+    vernuty stvoryty_flot(matematyka.pidloha(planeta["oborona"] / 2) + 3, 5, planeta["oborona"] / 8 + 1)

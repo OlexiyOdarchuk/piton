@@ -3,4 +3,4 @@
 /piton_result.exe
 /out.c
 /result
-/rust/target\n/target
+target/

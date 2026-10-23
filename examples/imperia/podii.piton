@@ -1,0 +1,39 @@
+# Модуль podii: випадкові події, що трясуть галактику
+
+functia vypadkova_podiya(gen, imperia, svit):
+    kod = vypadok.vypadkove_vid_do(gen, 0, 9)
+    tsil = vypadok.vypadkovyi_z(gen, svit)
+    yaksho kod == 0:
+        tsil["naselennya"] = zaokruhlennya(tsil["naselennya"] * 0.7, 1)
+        tsil["oborona"] = matematyka.bilshe_z(0, tsil["oborona"] - 5)
+        vernuty "☄ Метеоритний дощ на " + tsil["nazva"] + ": -30% населення"
+    inackshe yaksho kod == 1:
+        tsil["shchastya"] = matematyka.obmezhyty(tsil["shchastya"] - 25, 0, 100)
+        vernuty "🦠 Епідемія космічного грипу на " + tsil["nazva"]
+    inackshe yaksho kod == 2:
+        tsil["shchastya"] = matematyka.obmezhyty(tsil["shchastya"] + 30, 0, 100)
+        vernuty "✨ Золота доба на " + tsil["nazva"] + ": усі щасливі"
+    inackshe yaksho kod == 3:
+        yaksho (tsil["vlasnyk"] == 0) ta (tsil["shchastya"] < 45):
+            tsil["vlasnyk"] = 1
+            vernuty kolor("bright_red", "⚑ ПОВСТАННЯ! " + tsil["nazva"] + " переходить до повстанців")
+        vernuty "Чутки про повстання на " + tsil["nazva"] + " не підтвердились"
+    inackshe yaksho kod == 4:
+        imperia["nauka"] = imperia["nauka"] + 40
+        vernuty "🔬 Науковий прорив: +40 очок науки"
+    inackshe yaksho kod == 5:
+        imperia["energiya"] = matematyka.bilshe_z(0, imperia["energiya"] - 60)
+        vernuty "🌞 Сонячна буря спалила 60 енергії"
+    inackshe yaksho kod == 6:
+        bonus = vypadok.vypadkove_vid_do(gen, 50, 200)
+        imperia["skarbnytsia"] = imperia["skarbnytsia"] + bonus
+        vernuty "🚀 Торговий караван залишив " + bonus + " кредитів"
+    inackshe yaksho kod == 7:
+        tsil["oborona"] = tsil["oborona"] + 10
+        vernuty "🛡 На " + tsil["nazva"] + " збудували орбітальну станцію"
+    vernuty "Тиша в ефірі. Навіть повстанці сплять."
+
+functia nastroi_povstantsiv(gen, povstantsi, kilkist_planet):
+    pryrist = kilkist_planet * 2 + vypadok.vypadkove_vid_do(gen, 1, 6)
+    povstantsi["korabli"] = povstantsi["korabli"] + pryrist
+    vernuty pryrist

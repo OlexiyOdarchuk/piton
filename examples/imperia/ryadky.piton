@@ -1,0 +1,49 @@
+# Модуль ryadky: робота з текстом без порівняння і без довжини рядків
+
+# Рядки не можна порівнювати через ==, тому порівнюємо їх через ключі словника
+functia rivni(a, b):
+    probnyk = {}
+    probnyk[a] = 1
+    probnyk[b] = 1
+    vernuty dovzhyna(probnyk) == 1
+
+functia povtoryty(tekst, n):
+    yaksho n <= 0:
+        vernuty ""
+    vernuty tekst * n
+
+functia smuha(znachennya, maksymum, shyryna):
+    yaksho maksymum <= 0:
+        vernuty "[" + povtoryty(".", shyryna) + "]"
+    zapovneno = matematyka.pidloha(znachennya / maksymum * shyryna)
+    zapovneno = matematyka.obmezhyty(zapovneno, 0, shyryna)
+    vernuty "[" + povtoryty("█", zapovneno) + povtoryty("░", shyryna - zapovneno) + "]"
+
+functia dopovnyty_chyslo(n, shyryna):
+    tsyfry = matematyka.kilkist_tsyfr(matematyka.pidloha(n))
+    vernuty povtoryty(" ", shyryna - tsyfry) + n
+
+functia kolir_za_rivnem(riven, tekst):
+    yaksho riven >= 70:
+        vernuty kolor("bright_green", tekst)
+    inackshe yaksho riven >= 40:
+        vernuty kolor("yellow", tekst)
+    inackshe yaksho riven >= 15:
+        vernuty kolor("red", tekst)
+    vernuty kolor("bright_red", tekst)
+
+functia ramka(zaholovok):
+    liniya = povtoryty("═", 60)
+    drukuvaty kolor("bright_cyan", "╔" + liniya + "╗")
+    drukuvaty kolor("bright_cyan", "║  " + zaholovok)
+    drukuvaty kolor("bright_cyan", "╚" + liniya + "╝")
+
+functia zyednaty(spysok, rozdilnyk):
+    yaksho dovzhyna(spysok) == 0:
+        vernuty ""
+    rez = "" + spysok[0]
+    i = 1
+    poky i < dovzhyna(spysok):
+        rez = rez + rozdilnyk + spysok[i]
+        i = i + 1
+    vernuty rez

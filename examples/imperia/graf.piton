@@ -1,0 +1,117 @@
+# Модуль graf: карта галактики як зважений граф (матриця суміжності)
+
+functia porozhnia_matrytsia(n):
+    m = []
+    i = 0
+    poky i < n:
+        ryadok = []
+        j = 0
+        poky j < n:
+            ryadok = dodaty(ryadok, 0)
+            j = j + 1
+        m = dodaty(m, [ryadok])
+        i = i + 1
+    vernuty m
+
+functia zyednaty_planety(m, a, b, vaha):
+    m[a][b] = vaha
+    m[b][a] = vaha
+
+functia zgeneruvaty_galaktyku(n, gen):
+    m = porozhnia_matrytsia(n)
+    i = 0
+    poky i < n - 1:
+        zyednaty_planety(m, i, i + 1, vypadok.vypadkove_vid_do(gen, 2, 10))
+        i = i + 1
+    dodatkovi = 0
+    poky dodatkovi < n:
+        a = vypadok.vypadkove_vid_do(gen, 0, n)
+        b = vypadok.vypadkove_vid_do(gen, 0, n)
+        yaksho (a != b) ta (m[a][b] == 0):
+            zyednaty_planety(m, a, b, vypadok.vypadkove_vid_do(gen, 3, 15))
+        dodatkovi = dodatkovi + 1
+    vernuty m
+
+functia kilkist_marshrutiv(m):
+    k = 0
+    i = 0
+    poky i < dovzhyna(m):
+        j = i + 1
+        poky j < dovzhyna(m):
+            yaksho m[i][j] > 0:
+                k = k + 1
+            j = j + 1
+        i = i + 1
+    vernuty k
+
+functia susidy(m, v):
+    rez = []
+    j = 0
+    poky j < dovzhyna(m):
+        yaksho m[v][j] > 0:
+            rez = dodaty(rez, j)
+        j = j + 1
+    vernuty rez
+
+functia deikstra(m, start):
+    n = dovzhyna(m)
+    neskinchennist = 999999
+    vidstani = []
+    poperedni = []
+    vidvidano = []
+    i = 0
+    poky i < n:
+        vidstani = dodaty(vidstani, neskinchennist)
+        poperedni = dodaty(poperedni, -1)
+        vidvidano = dodaty(vidvidano, false)
+        i = i + 1
+    vidstani[start] = 0
+    krok = 0
+    poky krok < n:
+        u = -1
+        naimensha = neskinchennist
+        j = 0
+        poky j < n:
+            yaksho (ne (vidvidano[j])) ta (vidstani[j] < naimensha):
+                naimensha = vidstani[j]
+                u = j
+            j = j + 1
+        yaksho u >= 0:
+            vidvidano[u] = true
+            v = 0
+            poky v < n:
+                yaksho (m[u][v] > 0) ta (vidstani[u] + m[u][v] < vidstani[v]):
+                    vidstani[v] = vidstani[u] + m[u][v]
+                    poperedni[v] = u
+                v = v + 1
+        krok = krok + 1
+    vernuty {"vidstani": vidstani, "poperedni": poperedni}
+
+functia vidnovyty_shlyakh(poperedni, tsil):
+    zvorotnyi = []
+    potochna = tsil
+    poky potochna >= 0:
+        zvorotnyi = dodaty(zvorotnyi, potochna)
+        potochna = poperedni[potochna]
+    vernuty kolektsii.perevernuty(zvorotnyi)
+
+functia obkhid_v_shyrynu(m, start):
+    cherha = [start]
+    holova = 0
+    bachyly = [start]
+    poryadok = []
+    poky holova < dovzhyna(cherha):
+        v = cherha[holova]
+        holova = holova + 1
+        poryadok = dodaty(poryadok, v)
+        sus = susidy(m, v)
+        k = 0
+        poky k < dovzhyna(sus):
+            yaksho ne (kolektsii.mistyt(bachyly, sus[k])):
+                bachyly = dodaty(bachyly, sus[k])
+                cherha = dodaty(cherha, sus[k])
+            k = k + 1
+    vernuty poryadok
+
+functia zvyazna(m):
+    vernuty dovzhyna(obkhid_v_shyrynu(m, 0)) == dovzhyna(m)

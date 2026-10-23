@@ -1,0 +1,72 @@
+# Модуль ekonomika: ринок, податки, торгівля та облігації
+
+functia stvoryty_rynok():
+    tsiny = {"ruda": 10, "energiya": 14, "yizha": 8}
+    vernuty {"tsiny": tsiny, "istoriya_rudy": [10], "obig": 0}
+
+functia onovyty_tsiny(rynok, propozytsiya, popyt):
+    resursy = ["ruda", "energiya", "yizha"]
+    tsiny = rynok["tsiny"]
+    i = 0
+    poky i < 3:
+        r = resursy[i]
+        disbalans = (popyt[r] - propozytsiya[r]) / (popyt[r] + propozytsiya[r] + 1)
+        nova = tsiny[r] * (1 + 0.25 * disbalans)
+        tsiny[r] = zaokruhlennya(matematyka.obmezhyty(nova, 1, 250), 2)
+        i = i + 1
+    rynok["istoriya_rudy"] = dodaty(rynok["istoriya_rudy"], tsiny["ruda"])
+
+functia zibraty_podatky(imperia, svit):
+    stavka = imperia["podatok"]
+    zibrano = 0
+    i = 0
+    poky i < dovzhyna(svit):
+        p = svit[i]
+        yaksho p["vlasnyk"] == 0:
+            zibrano = zibrano + p["naselennya"] * stavka
+            p["shchastya"] = matematyka.obmezhyty(p["shchastya"] - stavka * 8, 0, 100)
+        i = i + 1
+    zibrano = zaokruhlennya(zibrano, 1)
+    imperia["skarbnytsia"] = imperia["skarbnytsia"] + zibrano
+    vernuty zibrano
+
+functia pidibraty_podatok(imperia, svit):
+    nashi = planety.planety_vlasnyka(svit, 0)
+    shchastya = kolektsii.serednie(kolektsii.vytyahnuty_pole(nashi, "shchastya"))
+    yaksho shchastya < 35:
+        imperia["podatok"] = matematyka.obmezhyty(imperia["podatok"] - 0.1, 0.1, 1)
+        vernuty "знижено"
+    inackshe yaksho shchastya > 70:
+        imperia["podatok"] = matematyka.obmezhyty(imperia["podatok"] + 0.1, 0.1, 1)
+        vernuty "підвищено"
+    vernuty "без змін"
+
+functia torhuvaty(imperia, rynok, rezerv):
+    resursy = ["ruda", "energiya", "yizha"]
+    tsiny = rynok["tsiny"]
+    vyruchka = 0
+    i = 0
+    poky i < 3:
+        r = resursy[i]
+        nadlyshok = imperia[r] - rezerv
+        yaksho nadlyshok > 0:
+            prodano = matematyka.pidloha(nadlyshok / 2)
+            imperia[r] = imperia[r] - prodano
+            vyruchka = vyruchka + prodano * tsiny[r]
+        inackshe yaksho imperia["skarbnytsia"] > (0 - nadlyshok) * tsiny[r]:
+            kupleno = 0 - nadlyshok
+            imperia[r] = imperia[r] + kupleno
+            vyruchka = vyruchka - kupleno * tsiny[r]
+        i = i + 1
+    vyruchka = zaokruhlennya(vyruchka, 1)
+    imperia["skarbnytsia"] = zaokruhlennya(imperia["skarbnytsia"] + vyruchka, 1)
+    rynok["obig"] = rynok["obig"] + abs vyruchka
+    vernuty vyruchka
+
+functia skladnyi_vidsotok(suma, stavka, roky):
+    rez = suma
+    rik = 0
+    poky rik < roky:
+        rez = rez * (1 + stavka)
+        rik = rik + 1
+    vernuty zaokruhlennya(rez, 2)

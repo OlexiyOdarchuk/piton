@@ -1,0 +1,249 @@
+# ГАЛАКТИЧНА ІМПЕРІЯ — покрокова симуляція на 10 модулів
+# Запуск з директорії проєкту: piton main.piton
+
+vykorystaty "matematyka"
+vykorystaty "ryadky"
+vykorystaty "kolektsii"
+vykorystaty "vypadok"
+vykorystaty "graf"
+vykorystaty "planety"
+vykorystaty "ekonomika"
+vykorystaty "flot"
+vykorystaty "podii"
+vykorystaty "zvit"
+
+functia kalibruvannya():
+    ryadky.ramka("Калібрування гіпердвигуна")
+    prosti = matematyka.prosti_do(50)
+    drukuvaty "  Прості до 50: " + ryadky.zyednaty(prosti, ", ")
+    drukuvaty "  НСД(1071, 462) = " + matematyka.nsd(1071, 462) + ", НСК(21, 6) = " + matematyka.nsk(21, 6)
+    drukuvaty "  9! = " + matematyka.faktorial(9) + ", F(30) = " + matematyka.fibonachi(30)
+    drukuvaty "  7^128 mod 13 = " + matematyka.stupin_za_modulem(7, 128, 13)
+    drukuvaty "  √2 (Ньютон) = " + zaokruhlennya(matematyka.korin_nyutona(2), 10) + ", вбудований korin = " + zaokruhlennya(korin 2, 10)
+    perevirka = (ryadky.rivni("Piton", "Piton")) ta (ne (ryadky.rivni("Piton", "Python")))
+    drukuvaty "  Piton == Piton і Piton != Python: " + perevirka
+    zrazok = vypadok.peremishaty(gen, [42, 7, 19, 3, 88, 23, 56, 11, 64, 5, 31, 77])
+    shvydko = kolektsii.shvydke_sortuvannya(zrazok)
+    zlyttyam = kolektsii.sortuvannya_zlyttyam(zrazok)
+    drukuvaty "  Перемішано:  " + ryadky.zyednaty(zrazok, " ")
+    drukuvaty "  Quicksort:   " + ryadky.zyednaty(shvydko, " ")
+    drukuvaty "  Mergesort:   " + ryadky.zyednaty(zlyttyam, " ")
+    drukuvaty "  Сортування збігаються: " + kolektsii.odnakovi_spysky(shvydko, zlyttyam)
+    drukuvaty "  Бінарний пошук 56 → індекс " + kolektsii.binarnyi_poshuk(shvydko, 56) + ", пошук 1000 → " + kolektsii.binarnyi_poshuk(shvydko, 1000)
+    drukuvaty "  Облігація 1000 під 7% на 10 років → " + ekonomika.skladnyi_vidsotok(1000, 0.07, 10)
+
+functia stvoryty_svit(n):
+    rez = []
+    i = 0
+    poky i < n:
+        vlasnyk = 2
+        yaksho i < 3:
+            vlasnyk = 0
+        inackshe yaksho i >= n - 2:
+            vlasnyk = 1
+        rez = dodaty(rez, planety.stvoryty_planetu(i, vlasnyk, gen))
+        i = i + 1
+    vernuty rez
+
+functia rozvidka():
+    ryadky.ramka("Розвідка галактики")
+    drukuvaty "  Планет: " + dovzhyna(svit) + ", гіпермаршрутів: " + graf.kilkist_marshrutiv(mapa) + ", зв'язна: " + graf.zvyazna(mapa)
+    drukuvaty "  Обхід у ширину від столиці: " + ryadky.zyednaty(graf.obkhid_v_shyrynu(mapa, 0), " → ")
+    vidstani = marshruty["vidstani"]
+    naidalsha = kolektsii.indeks_maksymumu(vidstani)
+    drukuvaty "  Відстані від столиці (Дейкстра): " + ryadky.zyednaty(vidstani, ", ")
+    shlyakh = graf.vidnovyty_shlyakh(marshruty["poperedni"], naidalsha)
+    drukuvaty "  Найдальша планета: " + svit[naidalsha]["nazva"] + ", шлях: " + ryadky.zyednaty(shlyakh, " → ")
+    zvit.tablytsia_planet(svit)
+
+functia faza_vyrobnytstva():
+    propozytsiya = {"ruda": 0, "energiya": 0, "yizha": 0}
+    popyt = {"ruda": 0, "energiya": 0, "yizha": 0}
+    resursy = ["ruda", "energiya", "yizha"]
+    i = 0
+    poky i < dovzhyna(svit):
+        p = svit[i]
+        vypusk = planety.onovyty_planetu(p, imperia["riven_tekh"])
+        potreby = planety.spozhyvannya(p)
+        j = 0
+        poky j < 3:
+            r = resursy[j]
+            propozytsiya[r] = propozytsiya[r] + vypusk[r]
+            popyt[r] = popyt[r] + potreby[r] + 5
+            yaksho p["vlasnyk"] == 0:
+                imperia[r] = imperia[r] + vypusk[r] * 0.4
+            j = j + 1
+        i = i + 1
+    vernuty {"propozytsiya": propozytsiya, "popyt": popyt}
+
+functia faza_ekonomiky(balans):
+    podatky = ekonomika.zibraty_podatky(imperia, svit)
+    ekonomika.onovyty_tsiny(rynok, balans["propozytsiya"], balans["popyt"])
+    vyruchka = ekonomika.torhuvaty(imperia, rynok, 150)
+    polityka = ekonomika.pidibraty_podatok(imperia, svit)
+    drukuvaty "  💰 Податки +" + podatky + ", торгівля " + vyruchka + ", податок " + polityka
+
+functia faza_nauky():
+    nashi = planety.planety_vlasnyka(svit, 0)
+    naselennya = kolektsii.suma(kolektsii.vytyahnuty_pole(nashi, "naselennya"))
+    imperia["nauka"] = zaokruhlennya(imperia["nauka"] + naselennya / 15, 0)
+    porih = matematyka.fibonachi(imperia["riven_tekh"] + 7)
+    yaksho imperia["nauka"] >= porih:
+        imperia["nauka"] = imperia["nauka"] - porih
+        imperia["riven_tekh"] = imperia["riven_tekh"] + 1
+        flot_imperii["ataka"] = flot_imperii["ataka"] + 1
+        flot_imperii["zakhyst"] = flot_imperii["zakhyst"] + 0.5
+        drukuvaty kolor("bright_magenta", "  🔬 Новий технологічний рівень " + imperia["riven_tekh"] + "! Атака флоту зросла")
+
+functia vybraty_tsil():
+    vidstani = marshruty["vidstani"]
+    nashi = planety.nomery_vlasnyka(svit, 0)
+    tsil = -1
+    naikrashcha = 999999
+    i = 0
+    poky i < dovzhyna(svit):
+        yaksho svit[i]["vlasnyk"] != 0:
+            sus = graf.susidy(mapa, i)
+            prykordonna = false
+            k = 0
+            poky k < dovzhyna(sus):
+                yaksho kolektsii.mistyt(nashi, sus[k]):
+                    prykordonna = true
+                k = k + 1
+            yaksho prykordonna ta (vidstani[i] < naikrashcha):
+                naikrashcha = vidstani[i]
+                tsil = i
+        i = i + 1
+    vernuty tsil
+
+functia faza_viiny():
+    zbudovano = flot.pobuduvaty_korabli(imperia, flot_imperii, 6)
+    drukuvaty "  🏗 Верфі спустили на воду " + zbudovano + " кораблів"
+    nomer = vybraty_tsil()
+    yaksho nomer < 0:
+        drukuvaty "  Воювати ні з ким. Сумно."
+        vernuty false
+    tsil = svit[nomer]
+    oborontsi = flot.harnizon_planety(tsil)
+    yaksho tsil["vlasnyk"] == 1:
+        oborontsi["korabli"] = oborontsi["korabli"] + matematyka.pidloha(povstantsi["korabli"] / 2)
+    yaksho flot.boiova_syla(flot_imperii) < flot.boiova_syla(oborontsi) * 0.8:
+        drukuvaty "  🤔 Штурм " + tsil["nazva"] + " відкладено: замало сил"
+        vernuty false
+    rezultat = flot.bytva(flot_imperii, oborontsi, gen)
+    opys = "  ⚔ Битва за " + tsil["nazva"] + ": " + rezultat["raundy"] + " раундів, втрати " + rezultat["vtraty_napadnyka"] + " проти " + rezultat["vtraty_zakhysnyka"]
+    yaksho rezultat["peremoha"]:
+        yaksho tsil["vlasnyk"] == 1:
+            povstantsi["korabli"] = matematyka.bilshe_z(0, povstantsi["korabli"] - rezultat["vtraty_zakhysnyka"])
+        tsil["vlasnyk"] = 0
+        tsil["shchastya"] = 30
+        drukuvaty kolor("bright_green", opys + " — ЗАХОПЛЕНО")
+        vernuty true
+    drukuvaty kolor("red", opys + " — відступ")
+    vernuty false
+
+functia faza_povstantsiv():
+    ikhni = planety.planety_vlasnyka(svit, 1)
+    pryrist = podii.nastroi_povstantsiv(gen, povstantsi, dovzhyna(ikhni))
+    drukuvaty "  ⚑ Повстанці зібрали ще " + pryrist + " кораблів (усього " + povstantsi["korabli"] + ")"
+    yaksho flot.boiova_syla(povstantsi) > flot.boiova_syla(flot_imperii) * 1.3:
+        nashi = planety.planety_vlasnyka(svit, 0)
+        yaksho dovzhyna(nashi) > 1:
+            slabka = kolektsii.sortuvaty_za_klyuchem(nashi, "shchastya")
+            zhertva = slabka[dovzhyna(slabka) - 1]
+            rezultat = flot.bytva(povstantsi, flot_imperii, gen)
+            yaksho rezultat["peremoha"]:
+                zhertva["vlasnyk"] = 1
+                flot_imperii["korabli"] = 3
+                drukuvaty kolor("bright_red", "  💥 Повстанці розбили флот і забрали " + zhertva["nazva"])
+            inackshe:
+                drukuvaty kolor("green", "  🛡 Флот відбив атаку повстанців на " + zhertva["nazva"])
+
+functia zapysaty_istoriyu():
+    litopys["skarbnytsia"] = dodaty(litopys["skarbnytsia"], imperia["skarbnytsia"])
+    litopys["planety"] = dodaty(litopys["planety"], dovzhyna(planety.planety_vlasnyka(svit, 0)))
+    litopys["flot"] = dodaty(litopys["flot"], flot_imperii["korabli"])
+
+functia khid(nomer):
+    drukuvaty ""
+    drukuvaty kolor("bright_yellow", "━━━ Хід " + nomer + " " + ryadky.povtoryty("━", 40))
+    balans = faza_vyrobnytstva()
+    faza_ekonomiky(balans)
+    faza_nauky()
+    faza_viiny()
+    faza_povstantsiv()
+    kilkist_podii = vypadok.vypadkove_vid_do(gen, 1, 3)
+    k = 0
+    poky k < kilkist_podii:
+        drukuvaty "  📡 " + podii.vypadkova_podiya(gen, imperia, svit)
+        k = k + 1
+    zapysaty_istoriyu()
+    yaksho (matematyka.ostacha(nomer, 4) == 0) ta (nomer < KILKIST_KHODIV):
+        drukuvaty ""
+        zvit.druk_imperiyu(imperia, flot_imperii)
+        zvit.tablytsia_planet(svit)
+
+functia finalnyi_zvit():
+    drukuvaty ""
+    ryadky.ramka("Фінальний звіт Імператору")
+    zvit.druk_imperiyu(imperia, flot_imperii)
+    drukuvaty ""
+    zvit.tablytsia_planet(svit)
+    drukuvaty ""
+    drukuvaty "  Рейтинг планет за силою:"
+    zvit.rejtynh(svit)
+    drukuvaty ""
+    drukuvaty "  Населення планет:"
+    naselennya = kolektsii.vytyahnuty_pole(svit, "naselennya")
+    mitky = []
+    i = 0
+    poky i < dovzhyna(svit):
+        mitky = dodaty(mitky, "P" + i + (" " * (2 - matematyka.kilkist_tsyfr(i))))
+        i = i + 1
+    zvit.gistohrama(naselennya, mitky, 30)
+    drukuvaty "  Середнє населення: " + zaokruhlennya(kolektsii.serednie(naselennya), 1) + ", σ = " + zaokruhlennya(kolektsii.vidkhylennya(naselennya), 1)
+    drukuvaty "  Планет понад 100 жителів: " + dovzhyna(kolektsii.filtr_bilshe(naselennya, 100))
+    drukuvaty ""
+    drukuvaty "  Ціна руди по ходах:"
+    tsiny = rynok["istoriya_rudy"]
+    mitky_khodiv = []
+    i = 0
+    poky i < dovzhyna(tsiny):
+        mitky_khodiv = dodaty(mitky_khodiv, "x" + i + (" " * (2 - matematyka.kilkist_tsyfr(i))))
+        i = i + 1
+    zvit.gistohrama(tsiny, mitky_khodiv, 30)
+    drukuvaty "  Кількість планет Імперії по ходах: " + ryadky.zyednaty(litopys["planety"], " ")
+    drukuvaty "  Розмір флоту по ходах: " + ryadky.zyednaty(litopys["flot"], " ")
+    drukuvaty "  Ринковий обіг за гру: " + zaokruhlennya(rynok["obig"], 0) + " кредитів"
+    drukuvaty "  Перемог / поразок: " + flot_imperii["peremohy"] + " / " + flot_imperii["porazky"]
+    drukuvaty "  Генератор випадковості викликано " + gen["vyklykiv"] + " разів"
+    chastka = matematyka.vidsotok(dovzhyna(planety.planety_vlasnyka(svit, 0)), dovzhyna(svit))
+    drukuvaty ""
+    drukuvaty "  Імперія контролює " + chastka + "% галактики"
+    drukuvaty "  " + zvit.vyrok(chastka)
+
+# ─── Головна програма ───
+
+KILKIST_PLANET = 10
+KILKIST_KHODIV = 12
+
+gen = vypadok.novyi_generator(20261022)
+imperia = {"skarbnytsia": 600, "ruda": 250, "energiya": 250, "yizha": 300, "nauka": 0, "riven_tekh": 1, "podatok": 0.3}
+flot_imperii = flot.stvoryty_flot(8, 5, 2)
+povstantsi = flot.stvoryty_flot(9, 4, 2)
+rynok = ekonomika.stvoryty_rynok()
+litopys = {"skarbnytsia": [], "planety": [], "flot": []}
+
+kalibruvannya()
+
+svit = stvoryty_svit(KILKIST_PLANET)
+mapa = graf.zgeneruvaty_galaktyku(KILKIST_PLANET, gen)
+marshruty = graf.deikstra(mapa, 0)
+rozvidka()
+
+nomer_khodu = 1
+poky (nomer_khodu <= KILKIST_KHODIV) ta (dovzhyna(planety.planety_vlasnyka(svit, 0)) > 0):
+    khid(nomer_khodu)
+    nomer_khodu = nomer_khodu + 1
+
+finalnyi_zvit()

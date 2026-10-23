@@ -1,0 +1,176 @@
+# Модуль kolektsii: алгоритми над списками
+
+functia suma(s):
+    rez = 0
+    i = 0
+    poky i < dovzhyna(s):
+        rez = rez + s[i]
+        i = i + 1
+    vernuty rez
+
+functia serednie(s):
+    yaksho dovzhyna(s) == 0:
+        vernuty 0
+    vernuty suma(s) / dovzhyna(s)
+
+functia vidkhylennya(s):
+    yaksho dovzhyna(s) == 0:
+        vernuty 0
+    sr = serednie(s)
+    akum = 0
+    i = 0
+    poky i < dovzhyna(s):
+        akum = akum + (s[i] - sr) stupin 2
+        i = i + 1
+    vernuty korin (akum / dovzhyna(s))
+
+functia indeks_maksymumu(s):
+    naikrashchyi = 0
+    i = 1
+    poky i < dovzhyna(s):
+        yaksho s[i] > s[naikrashchyi]:
+            naikrashchyi = i
+        i = i + 1
+    vernuty naikrashchyi
+
+functia diapazon(n):
+    rez = []
+    i = 0
+    poky i < n:
+        rez = dodaty(rez, i)
+        i = i + 1
+    vernuty rez
+
+functia perevernuty(s):
+    rez = []
+    i = dovzhyna(s) - 1
+    poky i >= 0:
+        rez = dodaty(rez, [s[i]])
+        i = i - 1
+    vernuty rez
+
+functia mistyt(s, x):
+    znaideno = false
+    i = 0
+    poky (i < dovzhyna(s)) ta (ne znaideno):
+        yaksho s[i] == x:
+            znaideno = true
+        i = i + 1
+    vernuty znaideno
+
+functia unikalni(s):
+    rez = []
+    i = 0
+    poky i < dovzhyna(s):
+        yaksho ne (mistyt(rez, s[i])):
+            rez = dodaty(rez, s[i])
+        i = i + 1
+    vernuty rez
+
+functia filtr_bilshe(s, porih):
+    rez = []
+    i = 0
+    poky i < dovzhyna(s):
+        yaksho s[i] > porih:
+            rez = dodaty(rez, s[i])
+        i = i + 1
+    vernuty rez
+
+functia kumulyatyvna(s):
+    rez = []
+    akum = 0
+    i = 0
+    poky i < dovzhyna(s):
+        akum = akum + s[i]
+        rez = dodaty(rez, akum)
+        i = i + 1
+    vernuty rez
+
+functia shvydke_sortuvannya(s):
+    yaksho dovzhyna(s) <= 1:
+        vernuty s
+    opora = s[0]
+    menshi = []
+    odnakovi = []
+    bilshi = []
+    i = 0
+    poky i < dovzhyna(s):
+        yaksho s[i] < opora:
+            menshi = dodaty(menshi, s[i])
+        inackshe yaksho s[i] > opora:
+            bilshi = dodaty(bilshi, s[i])
+        inackshe:
+            odnakovi = dodaty(odnakovi, s[i])
+        i = i + 1
+    vernuty dodaty(dodaty(shvydke_sortuvannya(menshi), odnakovi), shvydke_sortuvannya(bilshi))
+
+functia zlyty(a, b):
+    rez = []
+    i = 0
+    j = 0
+    poky (i < dovzhyna(a)) ta (j < dovzhyna(b)):
+        yaksho a[i] <= b[j]:
+            rez = dodaty(rez, a[i])
+            i = i + 1
+        inackshe:
+            rez = dodaty(rez, b[j])
+            j = j + 1
+    rez = dodaty(rez, a[i:])
+    rez = dodaty(rez, b[j:])
+    vernuty rez
+
+functia sortuvannya_zlyttyam(s):
+    yaksho dovzhyna(s) <= 1:
+        vernuty s
+    seredyna = matematyka.pidloha(dovzhyna(s) / 2)
+    vernuty zlyty(sortuvannya_zlyttyam(s[:seredyna]), sortuvannya_zlyttyam(s[seredyna:]))
+
+functia binarnyi_poshuk(s, tsil):
+    liva = 0
+    prava = dovzhyna(s) - 1
+    znaideno = -1
+    poky (liva <= prava) ta (znaideno < 0):
+        ser = matematyka.pidloha((liva + prava) / 2)
+        yaksho s[ser] == tsil:
+            znaideno = ser
+        inackshe yaksho s[ser] < tsil:
+            liva = ser + 1
+        inackshe:
+            prava = ser - 1
+    vernuty znaideno
+
+functia odnakovi_spysky(a, b):
+    yaksho dovzhyna(a) != dovzhyna(b):
+        vernuty false
+    zbig = true
+    i = 0
+    poky (i < dovzhyna(a)) ta zbig:
+        yaksho a[i] != b[i]:
+            zbig = false
+        i = i + 1
+    vernuty zbig
+
+functia vytyahnuty_pole(slovnyky, klyuch):
+    rez = []
+    i = 0
+    poky i < dovzhyna(slovnyky):
+        rez = dodaty(rez, slovnyky[i][klyuch])
+        i = i + 1
+    vernuty rez
+
+# Сортування вибором за спаданням для списку словників
+functia sortuvaty_za_klyuchem(slovnyky, klyuch):
+    s = slovnyky[:]
+    i = 0
+    poky i < dovzhyna(s):
+        naikrashchyi = i
+        j = i + 1
+        poky j < dovzhyna(s):
+            yaksho s[j][klyuch] > s[naikrashchyi][klyuch]:
+                naikrashchyi = j
+            j = j + 1
+        tymchasovyi = s[i]
+        s[i] = s[naikrashchyi]
+        s[naikrashchyi] = tymchasovyi
+        i = i + 1
+    vernuty s

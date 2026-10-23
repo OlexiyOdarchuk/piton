@@ -1,0 +1,52 @@
+# Модуль zvit: таблиці, гістограми та фінальний звіт
+
+functia druk_planetu(p):
+    typy = planety.nazvy_typiv()
+    vlasnyky = planety.nazvy_vlasnykiv()
+    smuzhka = ryadky.smuha(p["shchastya"], 100, 10)
+    ryadok = "  " + p["nazva"] + " | " + typy[p["typ"]] + " | " + vlasnyky[p["vlasnyk"]]
+    ryadok = ryadok + " | нас. " + zaokruhlennya(p["naselennya"], 0) + " | щастя " + ryadky.kolir_za_rivnem(p["shchastya"], smuzhka)
+    drukuvaty ryadok
+
+functia tablytsia_planet(svit):
+    i = 0
+    poky i < dovzhyna(svit):
+        druk_planetu(svit[i])
+        i = i + 1
+
+functia gistohrama(znachennya, mitky, shyryna):
+    maksymum = znachennya[kolektsii.indeks_maksymumu(znachennya)]
+    i = 0
+    poky i < dovzhyna(znachennya):
+        drukuvaty "  " + mitky[i] + " " + ryadky.smuha(znachennya[i], maksymum, shyryna) + " " + zaokruhlennya(znachennya[i], 1)
+        i = i + 1
+
+functia druk_imperiyu(imperia, flt):
+    drukuvaty "  💰 Скарбниця: " + zaokruhlennya(imperia["skarbnytsia"], 0) + "   ⚙ Податок: " + zaokruhlennya(imperia["podatok"], 1)
+    drukuvaty "  ⛏ Руда: " + zaokruhlennya(imperia["ruda"], 0) + "   ⚡ Енергія: " + zaokruhlennya(imperia["energiya"], 0) + "   🌾 Їжа: " + zaokruhlennya(imperia["yizha"], 0)
+    drukuvaty "  🔬 Наука: " + imperia["nauka"] + " (рівень " + imperia["riven_tekh"] + ")   🚀 Флот: " + flt["korabli"] + " кораблів, атака " + flt["ataka"]
+
+functia rejtynh(svit):
+    zi_syloyu = []
+    i = 0
+    poky i < dovzhyna(svit):
+        zapys = {"nazva": svit[i]["nazva"], "syla": planety.syla_planety(svit[i])}
+        zi_syloyu = dodaty(zi_syloyu, zapys)
+        i = i + 1
+    vidsortovano = kolektsii.sortuvaty_za_klyuchem(zi_syloyu, "syla")
+    medali = ["🥇", "🥈", "🥉"]
+    k = 0
+    poky (k < 3) ta (k < dovzhyna(vidsortovano)):
+        drukuvaty "  " + medali[k] + " " + vidsortovano[k]["nazva"] + " — сила " + vidsortovano[k]["syla"]
+        k = k + 1
+
+functia vyrok(chastka):
+    yaksho chastka >= 80:
+        vernuty kolor("bright_green", "ГАЛАКТИЧНЕ ДОМІНУВАННЯ. Імператор задоволений.")
+    inackshe yaksho chastka >= 55:
+        vernuty kolor("green", "Стабільна імперія. Можна йти на каву.")
+    inackshe yaksho chastka >= 30:
+        vernuty kolor("yellow", "Хиткий баланс. Сенат шепочеться.")
+    inackshe yaksho chastka > 0:
+        vernuty kolor("red", "Імперія на межі. Валізи вже спаковані.")
+    vernuty kolor("bright_red", "Імперія впала. A tak yak ty pyshesh, tak buty ne maye!")
