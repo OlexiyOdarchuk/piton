@@ -53,13 +53,6 @@ pub enum TokenType {
     Vykorystaty,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Token {
-    pub token_type: TokenType,
-    pub literal: String,
-    pub line_num: u32,
-}
-
 impl TokenType {
     pub fn from_ident(ident: &str) -> Self {
         match ident {
@@ -83,6 +76,23 @@ impl TokenType {
             "abo" => TokenType::Or,
             "ne" => TokenType::Not,
             _ => TokenType::Ident,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Token {
+    pub token_type: TokenType,
+    pub literal: String,
+    pub line_num: u32,
+}
+
+impl Token {
+    pub fn new(token_type: TokenType, literal: impl Into<String>, line_num: u32) -> Self {
+        Token {
+            token_type,
+            literal: literal.into(),
+            line_num,
         }
     }
 }
