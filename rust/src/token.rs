@@ -1,14 +1,16 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+use std::convert::identity;
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
-    Illegal,
+    IllegalType,
     Eof,
     NewLine,
     Indent,
     Dedent,
 
-    Ident,
-    Number,
-    String,
+    Ident(String),
+    NumberLiteral(f64),
+    StringLiteral(String),
     LeftBracket,
     RightBracket,
     LeftFigureBracket,
@@ -75,7 +77,7 @@ impl TokenType {
             "ta" => TokenType::And,
             "abo" => TokenType::Or,
             "ne" => TokenType::Not,
-            _ => TokenType::Ident,
+            ident => TokenType::Ident(String::from(ident)),
         }
     }
 }
@@ -83,15 +85,13 @@ impl TokenType {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Token {
     pub token_type: TokenType,
-    pub literal: String,
     pub line_num: u32,
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, literal: impl Into<String>, line_num: u32) -> Self {
+    pub fn new(token_type: TokenType, line_num: u32) -> Self {
         Token {
             token_type,
-            literal: literal.into(),
             line_num,
         }
     }
@@ -121,6 +121,9 @@ mod tests {
         assert_eq!(TokenType::from_ident("ta"), TokenType::And);
         assert_eq!(TokenType::from_ident("abo"), TokenType::Or);
         assert_eq!(TokenType::from_ident("ne"), TokenType::Not);
-        assert_eq!(TokenType::from_ident("blablabla"), TokenType::Ident);
+        assert_eq!(
+            TokenType::from_ident("blablabla"),
+            TokenType::Ident(String::from("blablabla"))
+        );
     }
 }
