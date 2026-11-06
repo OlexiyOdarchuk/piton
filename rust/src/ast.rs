@@ -1,13 +1,16 @@
+struct ElseIf {
+    condition: Expr,
+    body: Vec<Stmt>,
+}
+
 #[derive(Debug, Clone, Copy)]
 enum BinOperator {
-    Assign,
     Plus,
     Minus,
     Multiply,
     Divide,
     GreaterThan,
     LessThan,
-    Dot,
 
     Equal,
     NotEqual,
@@ -34,7 +37,7 @@ enum UnOperator {
 
 enum Expr {
     Prefix {
-        op: UnOperator,
+        operator: UnOperator,
         right: Box<Expr>,
     },
     Infix {
@@ -44,22 +47,27 @@ enum Expr {
     },
     Call {
         name: String,
-        receiver: Box<Expr>,
+        receiver: Option<Box<Expr>>,
         args: Vec<Expr>,
     },
     Index {
         arr: Box<Expr>,
         index: Box<Expr>,
     },
-    Spysok {
+    Slice {
         left: Box<Expr>,
-        start: Box<Expr>,
-        end: Box<Expr>,
+        start: Option<Box<Expr>>,
+        end: Option<Box<Expr>>,
     },
     Selector {
         right: String,
-        letf: Box<Expr>,
+        left: Box<Expr>,
     },
+    Number(f64),
+    Str(String),
+    Ident(String),
+    Spysok(Vec<Expr>),
+    Slovnyk(Vec<(Expr, Expr)>),
 }
 
 enum Stmt {
@@ -70,7 +78,7 @@ enum Stmt {
         name: String,
         params: Vec<String>,
         body: Vec<Stmt>,
-        module: String,
+        module: Option<String>,
     },
     Drukuvaty {
         expr: Expr,
@@ -89,12 +97,8 @@ enum Stmt {
     If {
         condition: Expr,
         body: Vec<Stmt>,
-        else_if: Vec<Stmt>,
+        else_if: Vec<ElseIf>,
         else_body: Vec<Stmt>,
-    },
-    ElseIf {
-        condition: Expr,
-        body: Vec<Stmt>,
     },
     Vernuty {
         expr: Expr,
