@@ -1,4 +1,3 @@
-use crate::token;
 use crate::token::Token;
 use crate::token::TokenType;
 
