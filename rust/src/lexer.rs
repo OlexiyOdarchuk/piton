@@ -1,7 +1,7 @@
 use crate::token::Token;
 use crate::token::TokenType;
 
-pub fn tokenize(input: &str) -> Vec<Token> {
+pub(crate) fn tokenize(input: &str) -> Vec<Token> {
     let mut tokens: Vec<Token> = Vec::new();
     let mut indents: Vec<usize> = vec![0];
     let mut line_num: u32 = 0;

@@ -1,10 +1,11 @@
-struct ElseIf {
-    condition: Expr,
-    body: Vec<Stmt>,
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct ElseIf {
+    pub(crate) condition: Expr,
+    pub(crate) body: Vec<Stmt>,
 }
 
-#[derive(Debug, Clone, Copy)]
-enum BinOperator {
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(crate) enum BinOperator {
     Plus,
     Minus,
     Multiply,
@@ -22,8 +23,8 @@ enum BinOperator {
     Stupin,
 }
 
-#[derive(Debug, Clone, Copy)]
-enum UnOperator {
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(crate) enum UnOperator {
     Minus,
     Kosynus,
     Synus,
@@ -35,7 +36,8 @@ enum UnOperator {
     Not,
 }
 
-enum Expr {
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum Expr {
     Prefix {
         operator: UnOperator,
         right: Box<Expr>,
@@ -70,7 +72,8 @@ enum Expr {
     Slovnyk(Vec<(Expr, Expr)>),
 }
 
-enum Stmt {
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum Stmt {
     Import {
         file_name: Expr,
     },

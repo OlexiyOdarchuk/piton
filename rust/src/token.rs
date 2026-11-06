@@ -1,7 +1,5 @@
-use std::convert::identity;
-
 #[derive(Debug, Clone, PartialEq)]
-pub enum TokenType {
+pub(crate) enum TokenType {
     IllegalType,
     Eof,
     NewLine,
@@ -56,7 +54,7 @@ pub enum TokenType {
 }
 
 impl TokenType {
-    pub fn from_ident(ident: &str) -> Self {
+    pub(crate) fn from_ident(ident: &str) -> Self {
         match ident {
             "functia" => TokenType::Functia,
             "drukuvaty" => TokenType::Drukuvaty,
@@ -83,13 +81,13 @@ impl TokenType {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Token {
-    pub token_type: TokenType,
-    pub line_num: u32,
+pub(crate) struct Token {
+    pub(crate) token_type: TokenType,
+    pub(crate) line_num: u32,
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, line_num: u32) -> Self {
+    pub(crate) fn new(token_type: TokenType, line_num: u32) -> Self {
         Token {
             token_type,
             line_num,
